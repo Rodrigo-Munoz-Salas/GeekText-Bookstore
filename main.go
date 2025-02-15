@@ -68,9 +68,12 @@ func main() {
 	// Checking health endpoint and error handler
 	v1Router.Get("/health", handlerReadiness)
 	v1Router.Get("/err", handlerErr)
+	//v1Router.Post() <- this is to how create the router
 
 	// START FEATURE IMPLEMENTATIONS
-	v1Router.Post("/users", apiCfg.handlerCreateUser)
+	v1Router.Post("/users", apiCfg.handlerCreateUser) //this function is in the handler_user file
+	//v1Router.Post("/books", apiCfg.handlerPostComment) <- example
+	//create file in main folder. copy func (apiCgf bla bla bla)
 
 	// STOP FEATURE IMPLEMENTATIONS, DO NOT TOUCH BELOW
 
