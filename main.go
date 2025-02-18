@@ -1,0 +1,93 @@
+package main
+
+import (
+	"database/sql"
+	"log"
+	"net/http"
+	"os"
+
+	"github.com/Rodrigo-Munoz-Salas/GeekText-Bookstore/internal/database"
+	"github.com/go-chi/chi"
+	"github.com/go-chi/cors"
+	"github.com/joho/godotenv"
+
+	_ "github.com/lib/pq"
+)
+
+type apiConfig struct {
+	DB *database.Queries
+}
+
+func main() {
+	godotenv.Load()
+
+	// Setting port to run the GeekText App
+	portString := os.Getenv("PORT")
+	if portString == "" {
+		log.Fatal("PORT is not found in the environment")
+	}
+
+	// CREATE A .env FILE AND ADD PORT={YOUR_PORT}
+	// Uncomment this line and test it
+	// fmt.Printf("PORT is: %v", portString)
+
+	// import our database connection from .env file
+	dbURL := os.Getenv("DB_URL")
+	if dbURL == "" {
+		log.Fatal("DB_URL is not found in the environment")
+	}
+
+	// Setting database connectivity with db url of local host
+	conn, err := sql.Open("postgres", dbURL)
+	if err != nil {
+		log.Fatal("Can't connect to database", err)
+	}
+
+	// Setting database api configuration between app and postgres
+	db := database.New(conn)
+	apiCfg := apiConfig{
+		DB: db,
+	}
+
+	// Creating the router to bind the endpoints
+	router := chi.NewRouter()
+
+	// Make requests to the server from a browser
+	router.Use(cors.Handler(cors.Options{
+		AllowedOrigins:   []string{"https://*", "http://*"},
+		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowedHeaders:   []string{"*"},
+		ExposedHeaders:   []string{"Link"},
+		AllowCredentials: false,
+		MaxAge:           300,
+	}))
+
+	// Hook up handlers to specific http methods and paths
+	v1Router := chi.NewRouter()
+
+	// Checking health endpoint and error handler
+	v1Router.Get("/health", handlerReadiness)
+	v1Router.Get("/err", handlerErr)
+
+	// START FEATURE IMPLEMENTATIONS
+	v1Router.Post("/users", apiCfg.handlerCreateUser)
+
+	// STOP FEATURE IMPLEMENTATIONS, DO NOT TOUCH BELOW
+
+	// Mounting router with v1 router
+	router.Mount("/v1", v1Router)
+
+	// Connecting router to an http server
+	srv := &http.Server{
+		Handler: router,
+		Addr:    ":" + portString,
+	}
+
+	// Server starts running here, handleling HTTP requests
+	// If an error ocurred, the server will inmediately stop and log the error
+	log.Printf("Server starting on port %v", portString)
+	err = srv.ListenAndServe()
+	if err != nil {
+		log.Fatal(err)
+	}
+}
