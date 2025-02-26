@@ -58,3 +58,40 @@ func (apiCgf *apiConfig) handlerCreateWishlist(w http.ResponseWriter, r *http.Re
 
 	responseWithJSON(w, 201, databaseWishlistToWishlist(wishlist))
 }
+
+// adds a book to a wishlist
+func (apiCgf *apiConfig) handlerAddBookToWishlist(w http.ResponseWriter, r *http.Request) {
+	type parameters struct {
+		WishlistID uuid.UUID `json:"wishlist_id"`
+		BookID     uuid.UUID `json:"book_id"`
+	}
+	decoder := json.NewDecoder(r.Body)
+
+	params := parameters{}
+	err := decoder.Decode(&params)
+	if err != nil {
+		respondWithError(w, 400, fmt.Sprintf("Error parsing JSON: %v", err))
+		return
+	}
+
+	// Add book to wishlist
+	book_to_wishlist, err := apiCgf.DB.AddBookToWishlist(r.Context(), database.AddBookToWishlistParams{
+		ID:         uuid.New(),
+		WishlistID: params.WishlistID,
+		BookID:     params.BookID,
+	})
+
+	if err != nil {
+		// Check the wishlist with the given id exists in the database
+		if strings.Contains(err.Error(), "foreign key constraint") {
+			respondWithError(w, 400, fmt.Sprintf("Wishlist with id '%v' does not exist", params.WishlistID))
+		}
+		// Check if a duplicate is trying to be added
+		if strings.Contains(err.Error(), "no rows in result set") {
+			respondWithError(w, 400, "Coudln't add book to wishlist: Duplicate books are not allowed")
+		}
+		return
+	}
+
+	responseWithJSON(w, 201, databaseBookWithWishlistToBookWithWishlist(book_to_wishlist))
+}

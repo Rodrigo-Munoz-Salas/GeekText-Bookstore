@@ -68,6 +68,7 @@ func main() {
 	// START FEATURE IMPLEMENTATIONS
 	v1Router.Post("/users", apiCfg.handlerCreateUser)
 	v1Router.Post("/wishlists", apiCfg.handlerCreateWishlist)
+	v1Router.Post("/wishlist_books", apiCfg.handlerAddBookToWishlist)
 
 	// STOP FEATURE IMPLEMENTATIONS, DO NOT TOUCH BELOW
 

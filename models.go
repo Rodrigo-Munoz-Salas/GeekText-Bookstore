@@ -40,3 +40,17 @@ func databaseWishlistToWishlist(dbWishlist database.Wishlist) Wishlist {
 		ListName: dbWishlist.ListName,
 	}
 }
+
+type WishlistBook struct {
+	ID         uuid.UUID `json:"id"`
+	WishlistID uuid.UUID `json:"wishlist_id"`
+	BookID     uuid.UUID `json:"book"`
+}
+
+func databaseBookWithWishlistToBookWithWishlist(dbWishlistBooks database.WishlistBook) WishlistBook {
+	return WishlistBook{
+		ID:         dbWishlistBooks.ID,
+		WishlistID: dbWishlistBooks.WishlistID,
+		BookID:     dbWishlistBooks.BookID,
+	}
+}
