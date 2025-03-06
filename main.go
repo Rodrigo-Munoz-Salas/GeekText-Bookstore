@@ -5,6 +5,8 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"fmt"
+	
 
 	"github.com/Rodrigo-Munoz-Salas/GeekText-Bookstore/internal/database"
 	"github.com/go-chi/chi"
@@ -29,7 +31,7 @@ func main() {
 
 	// CREATE A .env FILE AND ADD PORT={YOUR_PORT}
 	// Uncomment this line and test it
-	// fmt.Printf("PORT is: %v", portString)
+	fmt.Printf("PORT is: %v", portString)
 
 	// import our database connection from .env file
 	dbURL := os.Getenv("DB_URL")
@@ -71,9 +73,11 @@ func main() {
 	//v1Router.Post() <- this is to how create the router
 
 	// START FEATURE IMPLEMENTATIONS
-	v1Router.Post("/users", apiCfg.handlerCreateUser) //this function is in the handler_user file
-	//v1Router.Post("/books", apiCfg.handlerPostComment) <- example
-	//create file in main folder. copy func (apiCgf bla bla bla)
+	v1Router.Post("/users", apiCfg.handlerCreateUser)
+	v1Router.Post("/rating", apiCfg.handlerPostRating)
+	v1Router.Post("/comments", apiCfg.handlerPostComment)
+	v1Router.Get("/rating/{bookID}", apiCfg.handlerAvgRating)
+	v1Router.Get("/comments/{bookID}", apiCfg.handlerGetComments)
 
 	// STOP FEATURE IMPLEMENTATIONS, DO NOT TOUCH BELOW
 
