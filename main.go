@@ -27,10 +27,6 @@ func main() {
 		log.Fatal("PORT is not found in the environment")
 	}
 
-	// CREATE A .env FILE AND ADD PORT={YOUR_PORT}
-	// Uncomment this line and test it
-	// fmt.Printf("PORT is: %v", portString)
-
 	// import our database connection from .env file
 	dbURL := os.Getenv("DB_URL")
 	if dbURL == "" {
@@ -71,6 +67,8 @@ func main() {
 
 	// START FEATURE IMPLEMENTATIONS
 	v1Router.Post("/users", apiCfg.handlerCreateUser)
+	v1Router.Post("/wishlists", apiCfg.handlerCreateWishlist)
+	v1Router.Post("/wishlist_books", apiCfg.handlerAddBookToWishlist)
 
 	v1Router.Post("/shoppingcart/add", apiCfg.handlerAddBookToCart)
 	v1Router.Get("/shoppingcart/subtotal", apiCfg.handlerGetCartSubtotal)
@@ -89,6 +87,7 @@ func main() {
 	// Server starts running here, handleling HTTP requests
 	// If an error ocurred, the server will inmediately stop and log the error
 	log.Printf("Server starting on port %v", portString)
+	log.Println("Database connectivity with Postgres was succesfully done!")
 	err = srv.ListenAndServe()
 	if err != nil {
 		log.Fatal(err)
