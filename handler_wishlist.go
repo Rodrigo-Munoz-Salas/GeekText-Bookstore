@@ -59,7 +59,7 @@ func (apiCgf *apiConfig) handlerCreateWishlist(w http.ResponseWriter, r *http.Re
 	responseWithJSON(w, 201, databaseWishlistToWishlist(wishlist))
 }
 
-// adds a book to a wishlist
+// add book to a wishlist
 func (apiCgf *apiConfig) handlerAddBookToWishlist(w http.ResponseWriter, r *http.Request) {
 	type parameters struct {
 		WishlistID uuid.UUID `json:"wishlist_id"`
@@ -95,3 +95,7 @@ func (apiCgf *apiConfig) handlerAddBookToWishlist(w http.ResponseWriter, r *http
 
 	responseWithJSON(w, 201, databaseBookWithWishlistToBookWithWishlist(book_to_wishlist))
 }
+
+// remove book from wishlist
+
+// list all books from wishlist
