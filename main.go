@@ -72,6 +72,9 @@ func main() {
 	// START FEATURE IMPLEMENTATIONS
 	v1Router.Post("/users", apiCfg.handlerCreateUser)
 
+	v1Router.Post("/shoppingcart/add", apiCfg.handlerAddBookToCart)
+	v1Router.Get("/shoppingcart/subtotal", apiCfg.handlerGetCartSubtotal)
+
 	// STOP FEATURE IMPLEMENTATIONS, DO NOT TOUCH BELOW
 
 	// Mounting router with v1 router
