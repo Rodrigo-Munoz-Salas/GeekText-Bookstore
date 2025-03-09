@@ -52,8 +52,7 @@ func (apiCgf *apiConfig) handlerAddBookToCart(w http.ResponseWriter, r *http.Req
 	responseWithJSON(w, 200, "Book added to cart successfully")
 }
 
-//Retrieves Subtotal of cart
-
+// Retrieves Subtotal of cart
 func (apiCgf *apiConfig) handlerGetCartSubtotal(w http.ResponseWriter, r *http.Request) {
 	type parameters struct {
 		UserID uuid.UUID `json:"user_id"`
@@ -85,6 +84,6 @@ func (apiCgf *apiConfig) handlerGetCartSubtotal(w http.ResponseWriter, r *http.R
 		return
 	}
 
-	// Respond with the subtotal 
-	responseWithJSON(w, 200, subtotal)
+	// Respond with the subtotal
+	responseWithJSON(w, 200, map[string]float64{"subtotal": subtotal.(float64)})
 }

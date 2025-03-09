@@ -9,3 +9,9 @@ VALUES ($1, $2, $3, $4)
 ON CONFLICT (cart_id, book_id) 
 DO UPDATE SET quantity = shopping_cart_books.quantity + $4
 RETURNING *;
+
+-- name: GetCartSubtotal :one
+SELECT COALESCE(SUM(b.price * scb.quantity)::FLOAT8, 0.0) AS subtotal
+FROM shopping_cart_books scb
+JOIN books b ON scb.book_id = b.id
+WHERE scb.cart_id = $1;
