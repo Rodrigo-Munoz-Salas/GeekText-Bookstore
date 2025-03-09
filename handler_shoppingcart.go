@@ -10,7 +10,7 @@ import (
 	"github.com/google/uuid"
 )
 
-func (apiCgf *apiConfig) handlerAddBookToCart(w http.ResponseWriter, r *http.Request) {
+func (apiCfg *apiConfig) handlerAddBookToCart(w http.ResponseWriter, r *http.Request) {
 	type parameters struct {
 		UserID uuid.UUID `json:"user_id"`
 		BookID uuid.UUID `json:"book_id"`
@@ -25,7 +25,7 @@ func (apiCgf *apiConfig) handlerAddBookToCart(w http.ResponseWriter, r *http.Req
 	}
 
 	// Retrieve the shopping cart for the user
-	cartID, err := apiCgf.DB.GetShoppingCartByUserID(r.Context(), params.UserID)
+	cartID, err := apiCfg.DB.GetShoppingCartByUserID(r.Context(), params.UserID)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			respondWithError(w, 404, "Shopping cart not found for this user")
@@ -37,7 +37,7 @@ func (apiCgf *apiConfig) handlerAddBookToCart(w http.ResponseWriter, r *http.Req
 
 	// Insert the book into the shopping cart or update the quantity
 	// Default quantity of 1
-	err = apiCgf.DB.AddBookToCart(r.Context(), database.AddBookToCartParams{
+	err = apiCfg.DB.AddBookToCart(r.Context(), database.AddBookToCartParams{
 		ID:       uuid.New(),
 		CartID:   cartID,
 		BookID:   params.BookID,
@@ -53,7 +53,7 @@ func (apiCgf *apiConfig) handlerAddBookToCart(w http.ResponseWriter, r *http.Req
 }
 
 // Retrieves Subtotal of cart
-func (apiCgf *apiConfig) handlerGetCartSubtotal(w http.ResponseWriter, r *http.Request) {
+func (apiCfg *apiConfig) handlerGetCartSubtotal(w http.ResponseWriter, r *http.Request) {
 	type parameters struct {
 		UserID uuid.UUID `json:"user_id"`
 	}
@@ -67,7 +67,7 @@ func (apiCgf *apiConfig) handlerGetCartSubtotal(w http.ResponseWriter, r *http.R
 	}
 
 	// Retrieve the shopping cart for the user
-	cartID, err := apiCgf.DB.GetShoppingCartByUserID(r.Context(), params.UserID)
+	cartID, err := apiCfg.DB.GetShoppingCartByUserID(r.Context(), params.UserID)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			respondWithError(w, 404, "Shopping cart not found for this user")
@@ -78,12 +78,13 @@ func (apiCgf *apiConfig) handlerGetCartSubtotal(w http.ResponseWriter, r *http.R
 	}
 
 	// Retrieve the subtotal of the cart
-	subtotal, err := apiCgf.DB.GetCartSubtotal(r.Context(), cartID)
+	subtotal, err := apiCfg.DB.GetCartSubtotal(r.Context(), cartID)
+
 	if err != nil {
 		respondWithError(w, 500, fmt.Sprintf("Error retrieving cart subtotal: %v", err))
 		return
 	}
 
 	// Respond with the subtotal
-	responseWithJSON(w, 200, map[string]float64{"subtotal": subtotal.(float64)})
+	responseWithJSON(w, 200, subtotal)
 }
