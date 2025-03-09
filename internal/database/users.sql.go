@@ -12,6 +12,24 @@ import (
 	"github.com/google/uuid"
 )
 
+const createShoppingCart = `-- name: CreateShoppingCart :one
+INSERT INTO shopping_carts (id, user_id)
+VALUES ($1, $2)
+RETURNING id, user_id
+`
+
+type CreateShoppingCartParams struct {
+	ID     uuid.UUID
+	UserID uuid.UUID
+}
+
+func (q *Queries) CreateShoppingCart(ctx context.Context, arg CreateShoppingCartParams) (ShoppingCart, error) {
+	row := q.db.QueryRowContext(ctx, createShoppingCart, arg.ID, arg.UserID)
+	var i ShoppingCart
+	err := row.Scan(&i.ID, &i.UserID)
+	return i, err
+}
+
 const createUser = `-- name: CreateUser :one
 INSERT INTO users (id, username, password_hash, name, email, home_address)
 VALUES ($1, $2, $3, $4, $5, $6)
