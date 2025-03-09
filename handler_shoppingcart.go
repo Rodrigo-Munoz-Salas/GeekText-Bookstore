@@ -52,7 +52,7 @@ func (apiCfg *apiConfig) handlerAddBookToCart(w http.ResponseWriter, r *http.Req
 	responseWithJSON(w, 200, "Book added to cart successfully")
 }
 
-// Retrieves Subtotal of cart
+// Retrieves Subtotal of cart by user_id
 func (apiCfg *apiConfig) handlerGetCartSubtotal(w http.ResponseWriter, r *http.Request) {
 	type parameters struct {
 		UserID uuid.UUID `json:"user_id"`
@@ -66,20 +66,8 @@ func (apiCfg *apiConfig) handlerGetCartSubtotal(w http.ResponseWriter, r *http.R
 		return
 	}
 
-	// Retrieve the shopping cart for the user
-	cartID, err := apiCfg.DB.GetShoppingCartByUserID(r.Context(), params.UserID)
-	if err != nil {
-		if err == sql.ErrNoRows {
-			respondWithError(w, 404, "Shopping cart not found for this user")
-			return
-		}
-		respondWithError(w, 500, fmt.Sprintf("Error retrieving shopping cart: %v", err))
-		return
-	}
-
-	// Retrieve the subtotal of the cart
-	subtotal, err := apiCfg.DB.GetCartSubtotal(r.Context(), cartID)
-
+	// Retrieve the subtotal directly using user_id
+	subtotal, err := apiCfg.DB.GetCartSubtotalByUserID(r.Context(), params.UserID)
 	if err != nil {
 		respondWithError(w, 500, fmt.Sprintf("Error retrieving cart subtotal: %v", err))
 		return
