@@ -66,3 +66,34 @@ func (apiCgf *apiConfig) handlerCreateUser(w http.ResponseWriter, r *http.Reques
 
 	responseWithJSON(w, 201, databaseUserToUser(user))
 }
+
+// Gets user by username
+
+// creates a new user
+func (apiCfg *apiConfig) handlerGetUser(w http.ResponseWriter, r *http.Request) {
+	
+	type parameters struct {
+
+		Username      string `json:"username"`
+
+	}
+	decoder := json.NewDecoder(r.Body)
+
+	params := parameters{}
+	err := decoder.Decode(&params)
+	if err != nil {
+		respondWithError(w, 400, fmt.Sprintf("Error parsing JSON: %v", err))
+		return
+	}
+
+	user, err := apiCfg.DB.GetUserByUsername(r.Context(), params.Username)
+
+	if err != nil {
+		respondWithError(w, 400, fmt.Sprintf("User not found: %v", err))
+		return
+	}
+
+	responseWithJSON(w, 200, databaseUserToUser(user))
+
+
+}
