@@ -36,8 +36,12 @@ func (apiCgf *apiConfig) handlerCreateUser(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
+	// Generate a new user ID
+	userID := uuid.New()
+
+	// Insert user into the database
 	user, err := apiCgf.DB.CreateUser(r.Context(), database.CreateUserParams{
-		ID:           uuid.New(),
+		ID:           userID,
 		Username:     params.Username,
 		PasswordHash: params.Password_hash,
 		Name:         toNullString(params.Name),
@@ -47,6 +51,16 @@ func (apiCgf *apiConfig) handlerCreateUser(w http.ResponseWriter, r *http.Reques
 
 	if err != nil {
 		respondWithError(w, 400, fmt.Sprintf("Coudln't create user: %v", err))
+		return
+	}
+
+	// Insert shopping cart for the new user
+	_, err = apiCgf.DB.CreateShoppingCart(r.Context(), database.CreateShoppingCartParams{
+		ID:     uuid.New(),
+		UserID: userID,
+	})
+	if err != nil {
+		respondWithError(w, 500, fmt.Sprintf("User created, but failed to create shopping cart: %v", err))
 		return
 	}
 
