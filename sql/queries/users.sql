@@ -7,3 +7,6 @@ RETURNING *;
 INSERT INTO shopping_carts (id, user_id)
 VALUES ($1, $2)
 RETURNING *;
+
+-- name: GetUserByUsername :one
+SELECT * FROM users where username = $1;

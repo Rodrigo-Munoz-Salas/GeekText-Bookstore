@@ -27,6 +27,8 @@ func databaseUserToUser(dbUser database.User) User {
 	}
 }
 
+
+
 type Wishlist struct {
 	ID       uuid.UUID `json:"id"`
 	UserID   uuid.UUID `json:"user_id"`
