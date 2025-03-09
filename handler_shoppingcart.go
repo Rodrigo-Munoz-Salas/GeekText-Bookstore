@@ -1,70 +1,53 @@
 package main
 
 import (
+	"database/sql"
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"strings"
 
 	"github.com/Rodrigo-Munoz-Salas/GeekText-Bookstore/internal/database"
 	"github.com/google/uuid"
 )
 
-// adds a book to the shopping cart
-func (apiCfg *apiConfig) handlerAddBookToCart(w http.ResponseWriter, r *http.Request) {
+func (apiCgf *apiConfig) handlerAddBookToCart(w http.ResponseWriter, r *http.Request) {
 	type parameters struct {
 		UserID uuid.UUID `json:"user_id"`
 		BookID uuid.UUID `json:"book_id"`
 	}
-	decoder := json.NewDecoder(r.Body)
 
+	decoder := json.NewDecoder(r.Body)
 	params := parameters{}
 	err := decoder.Decode(&params)
 	if err != nil {
-		respondWithError(w, 400, fmt.Sprintf("Error parsing JSON: %v", err))
+		respondWithError(w, 400, fmt.Sprintf("Invalid user id: %v", err))
 		return
 	}
 
-	// Add book to cart
-	cartItem, err := apiCfg.DB.AddBookToCart(r.Context(), database.AddBookToCartParams{
-		ID:     uuid.New(),
-		UserID: params.UserID,
-		BookID: params.BookID,
-	})
-
+	// Retrieve the shopping cart for the user
+	cartID, err := apiCgf.DB.GetShoppingCartByUserID(r.Context(), params.UserID)
 	if err != nil {
-		if strings.Contains(err.Error(), "foreign key constraint") {
-			respondWithError(w, 400, fmt.Sprintf("User with id '%v' does not exist", params.UserID))
+		if err == sql.ErrNoRows {
+			respondWithError(w, 404, "Shopping cart not found for this user")
+			return
 		}
+		respondWithError(w, 500, fmt.Sprintf("Error retrieving shopping cart: %v", err))
 		return
 	}
 
-	responseWithJSON(w, 201, databaseCartItemToCartItem(cartItem))
-}
-
-func databaseCartItemToCartItem(cartItem database.CartItem) interface{} {
-	panic("unimplemented")
-}
-
-// retrieves the subtotal price of all items in the user's cart
-func (apiCfg *apiConfig) handlerGetCartSubtotal(w http.ResponseWriter, r *http.Request) {
-	type parameters struct {
-		UserID uuid.UUID `json:"user_id"`
-	}
-	decoder := json.NewDecoder(r.Body)
-
-	params := parameters{}
-	err := decoder.Decode(&params)
+	// Insert the book into the shopping cart or update the quantity
+	// Default quantity of 1
+	err = apiCgf.DB.AddBookToCart(r.Context(), database.AddBookToCartParams{
+		ID:       uuid.New(),
+		CartID:   cartID,
+		BookID:   params.BookID,
+		Quantity: sql.NullInt32{Int32: 1, Valid: true},
+	})
 	if err != nil {
-		respondWithError(w, http.StatusBadRequest, fmt.Sprintf("Error parsing JSON: %v", err))
+		respondWithError(w, 500, fmt.Sprintf("Error adding book to cart: %v", err))
 		return
 	}
 
-	subtotal, err := apiCfg.DB.GetCartSubtotal(r.Context(), params.UserID)
-	if err != nil {
-		respondWithError(w, http.StatusBadRequest, "Failed to retrieve cart subtotal")
-		return
-	}
-
-	responseWithJSON(w, http.StatusOK, map[string]float64{"subtotal": subtotal})
+	// Respond with success
+	responseWithJSON(w, 200, "Book added to cart successfully")
 }

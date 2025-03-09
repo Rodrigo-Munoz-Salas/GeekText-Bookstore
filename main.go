@@ -70,8 +70,7 @@ func main() {
 	v1Router.Post("/wishlists", apiCfg.handlerCreateWishlist)
 	v1Router.Post("/wishlist_books", apiCfg.handlerAddBookToWishlist)
 
-	v1Router.Post("/shoppingcart/add", apiCfg.handlerAddBookToCart)
-	v1Router.Get("/shoppingcart/subtotal", apiCfg.handlerGetCartSubtotal)
+	v1Router.Post("/shopping_cart_books", apiCfg.handlerAddBookToCart)
 
 	// STOP FEATURE IMPLEMENTATIONS, DO NOT TOUCH BELOW
 

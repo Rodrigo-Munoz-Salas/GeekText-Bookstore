@@ -65,13 +65,13 @@ type Rating struct {
 
 type ShoppingCart struct {
 	ID     uuid.UUID
-	UserID uuid.NullUUID
+	UserID uuid.UUID
 }
 
 type ShoppingCartBook struct {
 	ID       uuid.UUID
-	CartID   uuid.NullUUID
-	BookID   uuid.NullUUID
+	CartID   uuid.UUID
+	BookID   uuid.UUID
 	Quantity sql.NullInt32
 }
 
