@@ -16,3 +16,10 @@ FROM shopping_cart_books scb
 JOIN books b ON scb.book_id = b.id
 JOIN shopping_carts sc ON scb.cart_id = sc.id
 WHERE sc.user_id = $1;
+
+-- name: GetCartBooksByUserID :many
+SELECT scb.book_id, b.title, b.price, COALESCE(scb.quantity,0) AS quantity
+FROM shopping_cart_books scb   
+JOIN books b ON scb.book_id = b.id
+JOIN shopping_carts sc ON scb.cart_id = sc.id
+WHERE sc.user_id = $1;

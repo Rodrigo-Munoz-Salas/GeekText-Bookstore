@@ -77,3 +77,28 @@ func (apiCfg *apiConfig) handlerGetCartSubtotal(w http.ResponseWriter, r *http.R
 	// Respond with the subtotal
 	responseWithJSON(w, 200, map[string]float64{"subtotal": subtotal})
 }
+
+// Retrieve List of Books in Cart by user_id
+func (apiCfg *apiConfig) handlerGetCartBooks(w http.ResponseWriter, r *http.Request) {
+	type parameters struct {
+		UserID uuid.UUID `json:"user_id"`
+	}
+
+	decoder := json.NewDecoder(r.Body)
+	params := parameters{}
+	err := decoder.Decode(&params)
+	if err != nil {
+		respondWithError(w, 400, fmt.Sprintf("Invalid user id: %v", err))
+		return
+	}
+
+	// Retrieve the cart directly using user_id
+	books, err := apiCfg.DB.GetCartBooksByUserID(r.Context(), params.UserID)
+	if err != nil {
+		respondWithError(w, 500, fmt.Sprintf("Error retrieving cart books: %v", err))
+		return
+	}
+
+	// Respond with the books
+	responseWithJSON(w, 200, books)
+}

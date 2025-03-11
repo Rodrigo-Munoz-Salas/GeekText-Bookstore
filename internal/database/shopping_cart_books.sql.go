@@ -37,6 +37,49 @@ func (q *Queries) AddBookToCart(ctx context.Context, arg AddBookToCartParams) er
 	return err
 }
 
+const getCartBooksByUserID = `-- name: GetCartBooksByUserID :many
+SELECT scb.book_id, b.title, b.price, COALESCE(scb.quantity,0) AS quantity
+FROM shopping_cart_books scb   
+JOIN books b ON scb.book_id = b.id
+JOIN shopping_carts sc ON scb.cart_id = sc.id
+WHERE sc.user_id = $1
+`
+
+type GetCartBooksByUserIDRow struct {
+	BookID   uuid.UUID
+	Title    string
+	Price    string
+	Quantity int32
+}
+
+func (q *Queries) GetCartBooksByUserID(ctx context.Context, userID uuid.UUID) ([]GetCartBooksByUserIDRow, error) {
+	rows, err := q.db.QueryContext(ctx, getCartBooksByUserID, userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetCartBooksByUserIDRow
+	for rows.Next() {
+		var i GetCartBooksByUserIDRow
+		if err := rows.Scan(
+			&i.BookID,
+			&i.Title,
+			&i.Price,
+			&i.Quantity,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getCartSubtotalByUserID = `-- name: GetCartSubtotalByUserID :one
 SELECT COALESCE(SUM(b.price * scb.quantity), 0.0)::float8 AS subtotal
 FROM shopping_cart_books scb
