@@ -11,7 +11,7 @@ DO UPDATE SET quantity = shopping_cart_books.quantity + $4
 RETURNING *;
 
 -- name: GetCartSubtotalByUserID :one
-SELECT COALESCE(SUM(b.price * scb.quantity), 0) AS subtotal
+SELECT COALESCE(SUM(b.price * scb.quantity), 0.0)::float8 AS subtotal
 FROM shopping_cart_books scb
 JOIN books b ON scb.book_id = b.id
 JOIN shopping_carts sc ON scb.cart_id = sc.id
