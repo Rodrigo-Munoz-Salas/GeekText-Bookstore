@@ -61,6 +61,7 @@ func (apiCfg *apiConfig) handlerGetCartSubtotal(w http.ResponseWriter, r *http.R
 	decoder := json.NewDecoder(r.Body)
 	params := parameters{}
 	err := decoder.Decode(&params)
+
 	if err != nil {
 		respondWithError(w, 400, fmt.Sprintf("Invalid user id: %v", err))
 		return
@@ -74,5 +75,5 @@ func (apiCfg *apiConfig) handlerGetCartSubtotal(w http.ResponseWriter, r *http.R
 	}
 
 	// Respond with the subtotal
-	responseWithJSON(w, 200, subtotal)
+	responseWithJSON(w, 200, map[string]float64{"subtotal": subtotal})
 }
