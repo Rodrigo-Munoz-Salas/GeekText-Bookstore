@@ -37,6 +37,41 @@ func (q *Queries) AddBookToCart(ctx context.Context, arg AddBookToCartParams) er
 	return err
 }
 
+const checkBookInCart = `-- name: CheckBookInCart :one
+SELECT EXISTS(
+    SELECT 1
+    FROM shopping_cart_books
+    WHERE cart_id = $1 AND book_id = $2
+) AS exists
+`
+
+type CheckBookInCartParams struct {
+	CartID uuid.UUID
+	BookID uuid.UUID
+}
+
+func (q *Queries) CheckBookInCart(ctx context.Context, arg CheckBookInCartParams) (bool, error) {
+	row := q.db.QueryRowContext(ctx, checkBookInCart, arg.CartID, arg.BookID)
+	var exists bool
+	err := row.Scan(&exists)
+	return exists, err
+}
+
+const deleteBookFromCart = `-- name: DeleteBookFromCart :exec
+DELETE FROM shopping_cart_books
+WHERE cart_id = $1 AND book_id = $2
+`
+
+type DeleteBookFromCartParams struct {
+	CartID uuid.UUID
+	BookID uuid.UUID
+}
+
+func (q *Queries) DeleteBookFromCart(ctx context.Context, arg DeleteBookFromCartParams) error {
+	_, err := q.db.ExecContext(ctx, deleteBookFromCart, arg.CartID, arg.BookID)
+	return err
+}
+
 const getCartBooksByUserID = `-- name: GetCartBooksByUserID :many
 SELECT scb.book_id, b.title, b.price, COALESCE(scb.quantity,0) AS quantity
 FROM shopping_cart_books scb   

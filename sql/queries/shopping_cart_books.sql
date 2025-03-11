@@ -23,3 +23,15 @@ FROM shopping_cart_books scb
 JOIN books b ON scb.book_id = b.id
 JOIN shopping_carts sc ON scb.cart_id = sc.id
 WHERE sc.user_id = $1;
+
+-- name: DeleteBookFromCart :exec
+DELETE FROM shopping_cart_books
+WHERE cart_id = $1 AND book_id = $2;
+
+-- name: CheckBookInCart :one
+SELECT EXISTS(
+    SELECT 1
+    FROM shopping_cart_books
+    WHERE cart_id = $1 AND book_id = $2
+) AS exists;
+
