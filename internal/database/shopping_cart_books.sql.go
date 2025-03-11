@@ -38,16 +38,16 @@ func (q *Queries) AddBookToCart(ctx context.Context, arg AddBookToCartParams) er
 }
 
 const getCartSubtotalByUserID = `-- name: GetCartSubtotalByUserID :one
-SELECT COALESCE(SUM(b.price * scb.quantity), 0) AS subtotal
+SELECT COALESCE(SUM(b.price * scb.quantity), 0.0)::float8 AS subtotal
 FROM shopping_cart_books scb
 JOIN books b ON scb.book_id = b.id
 JOIN shopping_carts sc ON scb.cart_id = sc.id
 WHERE sc.user_id = $1
 `
 
-func (q *Queries) GetCartSubtotalByUserID(ctx context.Context, userID uuid.UUID) (interface{}, error) {
+func (q *Queries) GetCartSubtotalByUserID(ctx context.Context, userID uuid.UUID) (float64, error) {
 	row := q.db.QueryRowContext(ctx, getCartSubtotalByUserID, userID)
-	var subtotal interface{}
+	var subtotal float64
 	err := row.Scan(&subtotal)
 	return subtotal, err
 }
