@@ -18,7 +18,9 @@ JOIN shopping_carts sc ON scb.cart_id = sc.id
 WHERE sc.user_id = $1;
 
 -- name: GetCartBooksByUserID :many
-SELECT scb.book_id, b.title, b.price, COALESCE(scb.quantity,0) AS quantity
+SELECT scb.book_id, b.title, b.description, b.price, 
+        b.genre, b.publisher_id, b.year_published,
+        COALESCE(scb.quantity,0) AS quantity
 FROM shopping_cart_books scb   
 JOIN books b ON scb.book_id = b.id
 JOIN shopping_carts sc ON scb.cart_id = sc.id
@@ -34,4 +36,11 @@ SELECT EXISTS(
     FROM shopping_cart_books
     WHERE cart_id = $1 AND book_id = $2
 ) AS exists;
+
+-- name: RemoveABookFromCart :exec
+UPDATE shopping_cart_books
+SET quantity = quantity - 1
+WHERE cart_id = $1 AND book_id = $2 AND quantity > 1;
+DELETE FROM shopping_cart_books
+WHERE cart_id = $1 AND book_id = $2 AND quantity = 1;
 
