@@ -37,10 +37,4 @@ SELECT EXISTS(
     WHERE cart_id = $1 AND book_id = $2
 ) AS exists;
 
--- name: RemoveABookFromCart :exec
-UPDATE shopping_cart_books
-SET quantity = quantity - 1
-WHERE cart_id = $1 AND book_id = $2 AND quantity > 1;
-DELETE FROM shopping_cart_books
-WHERE cart_id = $1 AND book_id = $2 AND quantity = 1;
 
