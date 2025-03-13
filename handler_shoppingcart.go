@@ -103,7 +103,7 @@ func (apiCfg *apiConfig) handlerGetCartBooks(w http.ResponseWriter, r *http.Requ
 	responseWithJSON(w, 200, books)
 }
 
-// Removes a book from the users cart
+// Deletes a book from the users cart
 func (apiCfg *apiConfig) handlerDeleteBookFromCart(w http.ResponseWriter, r *http.Request) {
 	type parameters struct {
 		UserID uuid.UUID `json:"user_id"`
@@ -143,8 +143,63 @@ func (apiCfg *apiConfig) handlerDeleteBookFromCart(w http.ResponseWriter, r *htt
 		return
 	}
 
-	// Remove the book from the shopping cart
+	// Delete the book from the shopping cart
 	err = apiCfg.DB.DeleteBookFromCart(r.Context(), database.DeleteBookFromCartParams{
+		CartID: cartID,
+		BookID: params.BookID,
+	})
+
+	if err != nil {
+		respondWithError(w, 500, fmt.Sprintf("Error removing book from cart: %v", err))
+		return
+	}
+
+	// Respond with success
+	responseWithJSON(w, 200, "Book Deleted from cart successfully")
+}
+
+// Remove an instance of a book from the users cart (Decrease quantity by 1)
+func (apiCfg *apiConfig) handlerRemoveBookFromCart(w http.ResponseWriter, r *http.Request) {
+	type parameters struct {
+		UserID uuid.UUID `json:"user_id"`
+		BookID uuid.UUID `json:"book_id"`
+	}
+
+	decoder := json.NewDecoder(r.Body)
+	params := parameters{}
+	err := decoder.Decode(&params)
+	if err != nil {
+		respondWithError(w, 400, fmt.Sprintf("Invalid user id: %v", err))
+		return
+	}
+
+	// Retrieve the shopping cart for the user
+	cartID, err := apiCfg.DB.GetShoppingCartByUserID(r.Context(), params.UserID)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			respondWithError(w, 404, "Shopping cart not found for this user")
+			return
+		}
+		respondWithError(w, 500, fmt.Sprintf("Error retrieving shopping cart: %v", err))
+		return
+	}
+
+	// Check if the book is in the shopping cart
+	bookExists, err := apiCfg.DB.CheckBookInCart(r.Context(), database.CheckBookInCartParams{
+		CartID: cartID,
+		BookID: params.BookID,
+	})
+	if err != nil {
+		respondWithError(w, 500, fmt.Sprintf("Error checking book in cart: %v", err))
+		return
+	}
+	if !bookExists {
+		respondWithError(w, 404, "Book not found in cart")
+		return
+	}
+
+	// Delete the book from the shopping cart
+	err = apiCfg.DB.RemoveABookFromCart(r.Context(), database.RemoveABookFromCartParams{
 		CartID: cartID,
 		BookID: params.BookID,
 	})
