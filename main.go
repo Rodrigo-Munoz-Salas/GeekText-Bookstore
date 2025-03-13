@@ -74,6 +74,7 @@ func main() {
 	v1Router.Get("/shopping_cart_books/subtotal", apiCfg.handlerGetCartSubtotal)
 	v1Router.Get("/shopping_cart_books/list", apiCfg.handlerGetCartBooks)
 	v1Router.Delete("/shopping_cart_books/delete", apiCfg.handlerDeleteBookFromCart)
+	v1Router.Delete("/shopping_cart_books/remove", apiCfg.handlerRemoveBookFromCart)
 
 	// STOP FEATURE IMPLEMENTATIONS, DO NOT TOUCH BELOW
 
