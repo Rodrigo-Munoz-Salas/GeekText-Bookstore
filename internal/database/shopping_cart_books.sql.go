@@ -73,7 +73,9 @@ func (q *Queries) DeleteBookFromCart(ctx context.Context, arg DeleteBookFromCart
 }
 
 const getCartBooksByUserID = `-- name: GetCartBooksByUserID :many
-SELECT scb.book_id, b.title, b.price, COALESCE(scb.quantity,0) AS quantity
+SELECT scb.book_id, b.title, b.description, b.price, 
+        b.genre, b.publisher_id, b.year_published,
+        COALESCE(scb.quantity,0) AS quantity
 FROM shopping_cart_books scb   
 JOIN books b ON scb.book_id = b.id
 JOIN shopping_carts sc ON scb.cart_id = sc.id
@@ -81,10 +83,14 @@ WHERE sc.user_id = $1
 `
 
 type GetCartBooksByUserIDRow struct {
-	BookID   uuid.UUID
-	Title    string
-	Price    string
-	Quantity int32
+	BookID        uuid.UUID
+	Title         string
+	Description   sql.NullString
+	Price         string
+	Genre         string
+	PublisherID   uuid.NullUUID
+	YearPublished int32
+	Quantity      int32
 }
 
 func (q *Queries) GetCartBooksByUserID(ctx context.Context, userID uuid.UUID) ([]GetCartBooksByUserIDRow, error) {
@@ -99,7 +105,11 @@ func (q *Queries) GetCartBooksByUserID(ctx context.Context, userID uuid.UUID) ([
 		if err := rows.Scan(
 			&i.BookID,
 			&i.Title,
+			&i.Description,
 			&i.Price,
+			&i.Genre,
+			&i.PublisherID,
+			&i.YearPublished,
 			&i.Quantity,
 		); err != nil {
 			return nil, err
@@ -141,4 +151,20 @@ func (q *Queries) GetShoppingCartByUserID(ctx context.Context, userID uuid.UUID)
 	var id uuid.UUID
 	err := row.Scan(&id)
 	return id, err
+}
+
+const removeABookFromCart = `-- name: RemoveABookFromCart :exec
+UPDATE shopping_cart_books
+SET quantity = quantity - 1
+WHERE cart_id = $1 AND book_id = $2 AND quantity > 1
+`
+
+type RemoveABookFromCartParams struct {
+	CartID uuid.UUID
+	BookID uuid.UUID
+}
+
+func (q *Queries) RemoveABookFromCart(ctx context.Context, arg RemoveABookFromCartParams) error {
+	_, err := q.db.ExecContext(ctx, removeABookFromCart, arg.CartID, arg.BookID)
+	return err
 }
