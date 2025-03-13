@@ -152,19 +152,3 @@ func (q *Queries) GetShoppingCartByUserID(ctx context.Context, userID uuid.UUID)
 	err := row.Scan(&id)
 	return id, err
 }
-
-const removeABookFromCart = `-- name: RemoveABookFromCart :exec
-UPDATE shopping_cart_books
-SET quantity = quantity - 1
-WHERE cart_id = $1 AND book_id = $2 AND quantity > 1
-`
-
-type RemoveABookFromCartParams struct {
-	CartID uuid.UUID
-	BookID uuid.UUID
-}
-
-func (q *Queries) RemoveABookFromCart(ctx context.Context, arg RemoveABookFromCartParams) error {
-	_, err := q.db.ExecContext(ctx, removeABookFromCart, arg.CartID, arg.BookID)
-	return err
-}
