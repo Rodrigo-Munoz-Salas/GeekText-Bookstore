@@ -8,7 +8,7 @@ RETURNING *;
 DELETE FROM wishlist_books WHERE wishlist_id = $1 AND book_id = $2;
 
 -- name: GetWishlistBooksByWishlistID :many
-SELECT b.id, b.title, b.description, b.price, b.genre, b.publisher_id, b.year_published
+SELECT b.id, b.isbn, b.title, b.description, b.price, b.genre, b.publisher_id, b.year_published
 FROM books b
 JOIN wishlist_books wb ON b.id = wb.book_id
 WHERE wb.wishlist_id = $1;

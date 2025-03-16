@@ -21,6 +21,7 @@ type Author struct {
 
 type Book struct {
 	ID            uuid.UUID
+	Isbn          sql.NullString
 	Title         string
 	Description   sql.NullString
 	Price         string

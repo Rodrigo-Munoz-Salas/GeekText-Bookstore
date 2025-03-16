@@ -46,7 +46,7 @@ func (q *Queries) DeleteBookFromWishlist(ctx context.Context, arg DeleteBookFrom
 }
 
 const getWishlistBooksByWishlistID = `-- name: GetWishlistBooksByWishlistID :many
-SELECT b.id, b.title, b.description, b.price, b.genre, b.publisher_id, b.year_published
+SELECT b.id, b.isbn, b.title, b.description, b.price, b.genre, b.publisher_id, b.year_published
 FROM books b
 JOIN wishlist_books wb ON b.id = wb.book_id
 WHERE wb.wishlist_id = $1
@@ -63,6 +63,7 @@ func (q *Queries) GetWishlistBooksByWishlistID(ctx context.Context, wishlistID u
 		var i Book
 		if err := rows.Scan(
 			&i.ID,
+			&i.Isbn,
 			&i.Title,
 			&i.Description,
 			&i.Price,

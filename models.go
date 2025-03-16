@@ -57,6 +57,7 @@ func databaseBookWithWishlistToBookWithWishlist(dbWishlistBooks database.Wishlis
 
 type Book struct {
 	ID            uuid.UUID      `json:"id"`
+	Isbn          sql.NullString `json:"isbn"`
 	Title         string         `json:"title"`
 	Description   sql.NullString `json:"description"`
 	Price         string         `json:"price"`
@@ -68,6 +69,7 @@ type Book struct {
 func databaseBookToBook(dbBook database.Book) Book {
 	return Book{
 		ID:            dbBook.ID,
+		Isbn:          dbBook.Isbn,
 		Title:         dbBook.Title,
 		Description:   dbBook.Description,
 		Price:         dbBook.Price,
