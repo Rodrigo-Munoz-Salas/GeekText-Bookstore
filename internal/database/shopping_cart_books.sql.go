@@ -73,7 +73,7 @@ func (q *Queries) DeleteBookFromCart(ctx context.Context, arg DeleteBookFromCart
 }
 
 const getCartBooksByUserID = `-- name: GetCartBooksByUserID :many
-SELECT scb.book_id, b.title, b.description, b.price, 
+SELECT scb.book_id, b.title, b.isbn, b.description, b.price, 
         b.genre, b.publisher_id, b.year_published,
         COALESCE(scb.quantity,0) AS quantity
 FROM shopping_cart_books scb   
@@ -85,6 +85,7 @@ WHERE sc.user_id = $1
 type GetCartBooksByUserIDRow struct {
 	BookID        uuid.UUID
 	Title         string
+	Isbn          sql.NullString
 	Description   sql.NullString
 	Price         string
 	Genre         string
@@ -105,6 +106,7 @@ func (q *Queries) GetCartBooksByUserID(ctx context.Context, userID uuid.UUID) ([
 		if err := rows.Scan(
 			&i.BookID,
 			&i.Title,
+			&i.Isbn,
 			&i.Description,
 			&i.Price,
 			&i.Genre,
