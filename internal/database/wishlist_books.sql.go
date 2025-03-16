@@ -30,3 +30,56 @@ func (q *Queries) AddBookToWishlist(ctx context.Context, arg AddBookToWishlistPa
 	err := row.Scan(&i.ID, &i.WishlistID, &i.BookID)
 	return i, err
 }
+
+const deleteBookFromWishlist = `-- name: DeleteBookFromWishlist :exec
+DELETE FROM wishlist_books WHERE wishlist_id = $1 AND book_id = $2
+`
+
+type DeleteBookFromWishlistParams struct {
+	WishlistID uuid.UUID
+	BookID     uuid.UUID
+}
+
+func (q *Queries) DeleteBookFromWishlist(ctx context.Context, arg DeleteBookFromWishlistParams) error {
+	_, err := q.db.ExecContext(ctx, deleteBookFromWishlist, arg.WishlistID, arg.BookID)
+	return err
+}
+
+const getWishlistBooksByWishlistID = `-- name: GetWishlistBooksByWishlistID :many
+SELECT b.id, b.isbn, b.title, b.description, b.price, b.genre, b.publisher_id, b.year_published
+FROM books b
+JOIN wishlist_books wb ON b.id = wb.book_id
+WHERE wb.wishlist_id = $1
+`
+
+func (q *Queries) GetWishlistBooksByWishlistID(ctx context.Context, wishlistID uuid.UUID) ([]Book, error) {
+	rows, err := q.db.QueryContext(ctx, getWishlistBooksByWishlistID, wishlistID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Book
+	for rows.Next() {
+		var i Book
+		if err := rows.Scan(
+			&i.ID,
+			&i.Isbn,
+			&i.Title,
+			&i.Description,
+			&i.Price,
+			&i.Genre,
+			&i.PublisherID,
+			&i.YearPublished,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}

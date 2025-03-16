@@ -71,8 +71,13 @@ func main() {
 
 	v1Router.Post("/wishlists", apiCfg.handlerCreateWishlist)
 	v1Router.Post("/wishlist_books", apiCfg.handlerAddBookToWishlist)
+	v1Router.Delete("/wishlist_books/{wishlistBookID}", apiCfg.handlerRemoveBookFromWishlist)
+	v1Router.Get("/wishlist_books", apiCfg.handlerGetWishlistBooks)
 
 	v1Router.Post("/shopping_cart_books", apiCfg.handlerAddBookToCart)
+	v1Router.Get("/shopping_cart_books/subtotal", apiCfg.handlerGetCartSubtotal)
+	v1Router.Get("/shopping_cart_books/list", apiCfg.handlerGetCartBooks)
+	v1Router.Delete("/shopping_cart_books/delete", apiCfg.handlerDeleteBookFromCart)
 
 	// STOP FEATURE IMPLEMENTATIONS, DO NOT TOUCH BELOW
 

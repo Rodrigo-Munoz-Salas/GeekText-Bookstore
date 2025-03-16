@@ -1,12 +1,14 @@
 package main
 
 import (
+	"database/sql"
 	"encoding/json"
 	"fmt"
 	"net/http"
 	"strings"
 
 	"github.com/Rodrigo-Munoz-Salas/GeekText-Bookstore/internal/database"
+	"github.com/go-chi/chi"
 	"github.com/google/uuid"
 )
 
@@ -97,5 +99,96 @@ func (apiCgf *apiConfig) handlerAddBookToWishlist(w http.ResponseWriter, r *http
 }
 
 // remove book from wishlist
+func (apiCfg *apiConfig) handlerRemoveBookFromWishlist(w http.ResponseWriter, r *http.Request) {
+	// parsing the parameters
+	type parameters struct {
+		WishlistID     uuid.UUID `json:"wishlist_id"`
+		ToShoppingCart string    `json:"to_shopping_cart"`
+	}
+
+	decoder := json.NewDecoder(r.Body)
+	params := parameters{}
+	err := decoder.Decode(&params)
+	if err != nil {
+		respondWithError(w, 400, fmt.Sprintf("Error parsing JSON: %v", err))
+		return
+	}
+
+	// setting book ID to be read from url
+	wishlistBookIDStr := chi.URLParam(r, "wishlistBookID")
+	wishlistBookID, err := uuid.Parse(wishlistBookIDStr)
+	if err != nil {
+		respondWithError(w, 400, fmt.Sprintf("Couldn't parse wishlist book id: %v", err))
+	}
+
+	// Deleting book from the wishlist
+	err = apiCfg.DB.DeleteBookFromWishlist(r.Context(), database.DeleteBookFromWishlistParams{
+		WishlistID: params.WishlistID,
+		BookID:     wishlistBookID,
+	})
+	if err != nil {
+		respondWithError(w, 400, fmt.Sprintf("Couldn't delete book from wishlist: %v", err))
+		return
+	}
+
+	responseWithJSON(w, 200, fmt.Sprintf(
+		"Book was successfully removed from the wishlist with ID: %v", params.WishlistID,
+	))
+
+	// Check if the book should be added to the user's shopping cart
+	if params.ToShoppingCart == "yes" {
+		// Get the user ID from wishlist ID
+		userID, err := apiCfg.DB.GetUserIDByWishlistID(r.Context(), params.WishlistID)
+		if err != nil {
+			respondWithError(w, 500, "Failed to get user ID for wishlist")
+			return
+		}
+
+		// Get the user's shopping cart
+		cartID, err := apiCfg.DB.GetShoppingCartByUserID(r.Context(), userID)
+		if err != nil {
+			respondWithError(w, 500, "Failed to get user's shopping cart")
+			return
+		}
+
+		// Add book to cart
+		err = apiCfg.DB.AddBookToCart(r.Context(), database.AddBookToCartParams{
+			ID:       uuid.New(),
+			CartID:   cartID,
+			BookID:   wishlistBookID,
+			Quantity: sql.NullInt32{Int32: 1, Valid: true},
+		})
+		if err != nil {
+			respondWithError(w, 500, fmt.Sprintf("Error adding book to cart: %v", err))
+			return
+		}
+		responseWithJSON(w, 200, fmt.Sprintf(
+			"Book was successfully added to shopping cart with user ID: %v", userID,
+		))
+	}
+}
 
 // list all books from wishlist
+func (apiCfg *apiConfig) handlerGetWishlistBooks(w http.ResponseWriter, r *http.Request) {
+	type parameters struct {
+		WishlistID uuid.UUID `json:"wishlist_id"`
+	}
+
+	decoder := json.NewDecoder(r.Body)
+	params := parameters{}
+	err := decoder.Decode(&params)
+	if err != nil {
+		respondWithError(w, 400, fmt.Sprintf("Invalid user id: %v", err))
+		return
+	}
+
+	// Retrieve the wishlist directly using wishlist_id
+	books, err := apiCfg.DB.GetWishlistBooksByWishlistID(r.Context(), params.WishlistID)
+	if err != nil {
+		respondWithError(w, 500, fmt.Sprintf("Error retrieving wishlist books: %v", err))
+		return
+	}
+
+	// Respond with the books
+	responseWithJSON(w, 200, databaseBooksToBooks(books))
+}

@@ -27,8 +27,6 @@ func databaseUserToUser(dbUser database.User) User {
 	}
 }
 
-
-
 type Wishlist struct {
 	ID       uuid.UUID `json:"id"`
 	UserID   uuid.UUID `json:"user_id"`
@@ -55,4 +53,36 @@ func databaseBookWithWishlistToBookWithWishlist(dbWishlistBooks database.Wishlis
 		WishlistID: dbWishlistBooks.WishlistID,
 		BookID:     dbWishlistBooks.BookID,
 	}
+}
+
+type Book struct {
+	ID            uuid.UUID      `json:"id"`
+	Isbn          sql.NullString `json:"isbn"`
+	Title         string         `json:"title"`
+	Description   sql.NullString `json:"description"`
+	Price         string         `json:"price"`
+	Genre         string         `json:"genre"`
+	PublisherID   uuid.NullUUID  `json:"publisher_id"`
+	YearPublished int32          `json:"year_published"`
+}
+
+func databaseBookToBook(dbBook database.Book) Book {
+	return Book{
+		ID:            dbBook.ID,
+		Isbn:          dbBook.Isbn,
+		Title:         dbBook.Title,
+		Description:   dbBook.Description,
+		Price:         dbBook.Price,
+		Genre:         dbBook.Genre,
+		PublisherID:   dbBook.PublisherID,
+		YearPublished: dbBook.YearPublished,
+	}
+}
+
+func databaseBooksToBooks(dbBooks []database.Book) []Book {
+	books := []Book{}
+	for _, dbBook := range dbBooks {
+		books = append(books, databaseBookToBook(dbBook))
+	}
+	return books
 }

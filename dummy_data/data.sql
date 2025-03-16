@@ -16,10 +16,10 @@ INSERT INTO authors (id, first_name, last_name, biography, publisher_id) VALUES
 (gen_random_uuid(), 'Agatha', 'Christie', 'British writer known for mystery novels', (SELECT id FROM publishers WHERE name = 'HarperCollins'));
 
 -- Insert books
-INSERT INTO books (id, title, description, price, genre, publisher_id, year_published) VALUES
-(gen_random_uuid(), '1984', 'Dystopian social science fiction novel', 14.99, 'Fiction', (SELECT id FROM publishers WHERE name = 'Penguin Books'), 1949),
-(gen_random_uuid(), 'Harry Potter and the Sorcerer''s Stone', 'Fantasy novel about a young wizard', 19.99, 'Fantasy', (SELECT id FROM publishers WHERE name = 'Bloomsbury'), 1997),
-(gen_random_uuid(), 'Murder on the Orient Express', 'Detective novel featuring Hercule Poirot', 12.99, 'Mystery', (SELECT id FROM publishers WHERE name = 'HarperCollins'), 1934);
+INSERT INTO books (id, title, isbn, description, price, genre, publisher_id, year_published) VALUES
+(gen_random_uuid(), '1984', '9780451524935','Dystopian social science fiction novel', 14.99, 'Fiction', (SELECT id FROM publishers WHERE name = 'Penguin Books'), 1949),
+(gen_random_uuid(), 'Harry Potter and the Sorcerer''s Stone', '9780590353427','Fantasy novel about a young wizard', 19.99, 'Fantasy', (SELECT id FROM publishers WHERE name = 'Bloomsbury'), 1997),
+(gen_random_uuid(), 'Murder on the Orient Express', '9780062693662','Detective novel featuring Hercule Poirot', 12.99, 'Mystery', (SELECT id FROM publishers WHERE name = 'HarperCollins'), 1934);
 
 -- Insert book_authors
 INSERT INTO book_authors (book_id, author_id) VALUES
