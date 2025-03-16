@@ -71,6 +71,7 @@ func main() {
 
 	v1Router.Post("/wishlists", apiCfg.handlerCreateWishlist)
 	v1Router.Post("/wishlist_books", apiCfg.handlerAddBookToWishlist)
+	v1Router.Delete("/wishlist_books/{wishlistBookID}", apiCfg.handlerRemoveBookFromWishlist)
 
 	v1Router.Post("/shopping_cart_books", apiCfg.handlerAddBookToCart)
 	v1Router.Get("/shopping_cart_books/subtotal", apiCfg.handlerGetCartSubtotal)

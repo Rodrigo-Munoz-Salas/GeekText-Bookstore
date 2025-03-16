@@ -30,3 +30,17 @@ func (q *Queries) AddBookToWishlist(ctx context.Context, arg AddBookToWishlistPa
 	err := row.Scan(&i.ID, &i.WishlistID, &i.BookID)
 	return i, err
 }
+
+const deleteBookFromWishlist = `-- name: DeleteBookFromWishlist :exec
+DELETE FROM wishlist_books WHERE wishlist_id = $1 AND book_id = $2
+`
+
+type DeleteBookFromWishlistParams struct {
+	WishlistID uuid.UUID
+	BookID     uuid.UUID
+}
+
+func (q *Queries) DeleteBookFromWishlist(ctx context.Context, arg DeleteBookFromWishlistParams) error {
+	_, err := q.db.ExecContext(ctx, deleteBookFromWishlist, arg.WishlistID, arg.BookID)
+	return err
+}

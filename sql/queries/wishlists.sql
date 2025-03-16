@@ -6,3 +6,6 @@ RETURNING *;
 
 -- name: CountUserWishlists :one
 SELECT COUNT(*) FROM wishlists WHERE user_id = $1;
+
+-- name: GetUserIDByWishlistID :one
+SELECT user_id FROM wishlists WHERE id = $1;

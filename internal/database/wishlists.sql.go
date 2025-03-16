@@ -41,3 +41,14 @@ func (q *Queries) CreateWishlist(ctx context.Context, arg CreateWishlistParams) 
 	err := row.Scan(&i.ID, &i.UserID, &i.ListName)
 	return i, err
 }
+
+const getUserIDByWishlistID = `-- name: GetUserIDByWishlistID :one
+SELECT user_id FROM wishlists WHERE id = $1
+`
+
+func (q *Queries) GetUserIDByWishlistID(ctx context.Context, id uuid.UUID) (uuid.UUID, error) {
+	row := q.db.QueryRowContext(ctx, getUserIDByWishlistID, id)
+	var user_id uuid.UUID
+	err := row.Scan(&user_id)
+	return user_id, err
+}
