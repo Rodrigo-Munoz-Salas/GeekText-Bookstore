@@ -169,3 +169,26 @@ func (apiCfg *apiConfig) handlerRemoveBookFromWishlist(w http.ResponseWriter, r 
 }
 
 // list all books from wishlist
+func (apiCfg *apiConfig) handlerGetWishlistBooks(w http.ResponseWriter, r *http.Request) {
+	type parameters struct {
+		WishlistID uuid.UUID `json:"wishlist_id"`
+	}
+
+	decoder := json.NewDecoder(r.Body)
+	params := parameters{}
+	err := decoder.Decode(&params)
+	if err != nil {
+		respondWithError(w, 400, fmt.Sprintf("Invalid user id: %v", err))
+		return
+	}
+
+	// Retrieve the wishlist directly using wishlist_id
+	books, err := apiCfg.DB.GetWishlistBooksByWishlistID(r.Context(), params.WishlistID)
+	if err != nil {
+		respondWithError(w, 500, fmt.Sprintf("Error retrieving wishlist books: %v", err))
+		return
+	}
+
+	// Respond with the books
+	responseWithJSON(w, 200, databaseBooksToBooks(books))
+}
