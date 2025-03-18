@@ -85,7 +85,7 @@ WHERE sc.user_id = $1
 type GetCartBooksByUserIDRow struct {
 	BookID        uuid.UUID
 	Title         string
-	Isbn          sql.NullString
+	Isbn          string
 	Description   sql.NullString
 	Price         string
 	Genre         string

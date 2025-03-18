@@ -1,7 +1,7 @@
 -- +goose Up
 CREATE TABLE books (
     id UUID PRIMARY KEY,
-    isbn VARCHAR(13) UNIQUE,
+    isbn VARCHAR(13) UNIQUE NOT NULL,
     title TEXT NOT NULL,
     description TEXT,
     price DECIMAL(6,2) NOT NULL,
@@ -11,4 +11,4 @@ CREATE TABLE books (
 );
 
 -- +goose Down
-DROP TABLE books;
+DROP TABLE books;∂
