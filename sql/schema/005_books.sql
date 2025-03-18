@@ -11,4 +11,4 @@ CREATE TABLE books (
 );
 
 -- +goose Down
-DROP TABLE books;∂
+DROP TABLE books;
