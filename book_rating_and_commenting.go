@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strconv"
 
 	"github.com/Rodrigo-Munoz-Salas/GeekText-Bookstore/internal/database"
 	"github.com/go-chi/chi"
@@ -65,37 +66,61 @@ func (apiCfg *apiConfig) handlerPostComment(w http.ResponseWriter, r *http.Reque
 	responseWithJSON(w, 201, comment)
 }
 
-//WILL WORK ON THIS MORE NEXT SPRINT
 //Gets average rating for each book
 func (apiCfg *apiConfig) handlerAvgRating(w http.ResponseWriter, r *http.Request) {
 	bookIDStr := chi.URLParam(r, "bookID")
 	bookID, err := uuid.Parse(bookIDStr)
 	if err != nil {
-		respondWithError(w, 400, fmt.Sprintf("Invalid book ID: %v", err))
+		respondWithError(w, 400, fmt.Sprintf("Invalid Book ID: %v", err))
 		return
 	}
-	avgRating, err := apiCfg.DB.GetAveRatingByBook(r.Context(), bookID)
-	if (err != nil) {
-		respondWithError(w, 400, fmt.Sprintf("Failed to retrieve average rating: %v", err))
+	avgRatingInterface, err := apiCfg.DB.GetAveRatingByBook(r.Context(), bookID)
+	if err != nil {
+		respondWithError(w, 500, fmt.Sprintf("Failed to get average rating: %v", err))
 		return
 	}
-	responseWithJSON(w, 200, map[string]interface{}{
-		"book_id": 		  bookID,
-		"average_rating": avgRating,
-	})
+	if avgRatingInterface == nil {
+		responseWithJSON(w, 200, map[string]float64{"average_rating": 0})
+		return
+	}
+	var avgRating float64
+	switch v := avgRatingInterface.(type) {
+		case float64:
+			avgRating = v
+		case int64:
+			avgRating = float64(v)
+		case string:
+			parsed, err := strconv.ParseFloat(v, 64)
+			if err != nil {
+				respondWithError(w, 500, fmt.Sprintf("Unexpected string type for average rating: %v", err))
+				return 
+			}
+			avgRating = parsed
+		case []uint8:
+			parsed, err := strconv.ParseFloat(string(v), 64)
+			if err != nil {
+				respondWithError(w, 500, fmt.Sprintf("Unexpected []uint8 type for average rating: %v", err))
+				return
+			}
+			avgRating = parsed
+		default:
+			respondWithError(w, 500, fmt.Sprintf("Unexpected type for average rating: %T", avgRatingInterface))
+			return
+	}
+	responseWithJSON(w, 200, map[string]float64{"average_rating": avgRating})
 }
 
 //Gets all comments for a book
 func (apiCfg *apiConfig) handlerGetComments(w http.ResponseWriter, r *http.Request) {
 	bookIDStr := chi.URLParam(r, "bookID")
 	bookID, err := uuid.Parse(bookIDStr)
-	if (err != nil) {
-		respondWithError(w, 400, fmt.Sprintf("Invalid book ID: %v", err))
+	if err != nil {
+		respondWithError(w, 400, fmt.Sprintf("Invalid Book ID: %v", err))
 		return
 	}
 	comments, err := apiCfg.DB.GetCommentsByBook(r.Context(), bookID)
-	if (err != nil) {
-		respondWithError(w, http.StatusInternalServerError, "Failed to get comments")
+	if err != nil {
+		respondWithError(w, 500, fmt.Sprintf("Failed to get comments: %v", err))
 		return
 	}
 	responseWithJSON(w, 200, comments)
