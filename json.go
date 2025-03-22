@@ -11,13 +11,7 @@ func respondWithError(w http.ResponseWriter, code int, msg string) {
 	if code > 499 {
 		log.Println("Responding with 5X error:", msg)
 	}
-	// COMMENT THE ERR RESPONSE STRUCT TO ANSWER WITH A MAP. THIS IS SUBJECT TO CHANGE
-	// type errResponse struct {
-	// 	Error string `json:"error"`
-	// }
-	// responseWithJSON(w, code, errResponse{
-	// 	Error: msg,
-	// })
+
 	responseWithJSON(w, code, map[string]string{
 		"error": msg,
 	})

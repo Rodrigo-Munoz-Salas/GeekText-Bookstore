@@ -31,7 +31,7 @@ func main() {
 
 	// CREATE A .env FILE AND ADD PORT={YOUR_PORT}
 	// Uncomment this line and test it
-	fmt.Printf("PORT is: %v", portString)
+	// fmt.Printf("PORT is: %v", portString)
 
 	// import our database connection from .env file
 	dbURL := os.Getenv("DB_URL")
@@ -74,6 +74,19 @@ func main() {
 
 	// START FEATURE IMPLEMENTATIONS
 	v1Router.Post("/users", apiCfg.handlerCreateUser)
+	v1Router.Get("/users", apiCfg.handlerGetUser)
+
+	v1Router.Post("/book_admin", apiCfg.handlerCreateBook)
+
+	v1Router.Post("/wishlists", apiCfg.handlerCreateWishlist)
+	v1Router.Post("/wishlist_books", apiCfg.handlerAddBookToWishlist)
+	v1Router.Delete("/wishlist_books/{wishlistBookID}", apiCfg.handlerRemoveBookFromWishlist)
+	v1Router.Get("/wishlist_books", apiCfg.handlerGetWishlistBooks)
+
+	v1Router.Post("/shopping_cart_books", apiCfg.handlerAddBookToCart)
+	v1Router.Get("/shopping_cart_books/subtotal", apiCfg.handlerGetCartSubtotal)
+	v1Router.Get("/shopping_cart_books/list", apiCfg.handlerGetCartBooks)
+	v1Router.Delete("/shopping_cart_books/delete", apiCfg.handlerDeleteBookFromCart)
 	v1Router.Post("/rating", apiCfg.handlerPostRating)
 	v1Router.Post("/comments", apiCfg.handlerPostComment)
 	v1Router.Get("/rating/{bookID}", apiCfg.handlerAvgRating)
@@ -93,6 +106,7 @@ func main() {
 	// Server starts running here, handleling HTTP requests
 	// If an error ocurred, the server will inmediately stop and log the error
 	log.Printf("Server starting on port %v", portString)
+	log.Println("Database connectivity with Postgres was succesfully done!")
 	err = srv.ListenAndServe()
 	if err != nil {
 		log.Fatal(err)

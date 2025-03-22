@@ -12,6 +12,24 @@ import (
 	"github.com/google/uuid"
 )
 
+const createShoppingCart = `-- name: CreateShoppingCart :one
+INSERT INTO shopping_carts (id, user_id)
+VALUES ($1, $2)
+RETURNING id, user_id
+`
+
+type CreateShoppingCartParams struct {
+	ID     uuid.UUID
+	UserID uuid.UUID
+}
+
+func (q *Queries) CreateShoppingCart(ctx context.Context, arg CreateShoppingCartParams) (ShoppingCart, error) {
+	row := q.db.QueryRowContext(ctx, createShoppingCart, arg.ID, arg.UserID)
+	var i ShoppingCart
+	err := row.Scan(&i.ID, &i.UserID)
+	return i, err
+}
+
 const createUser = `-- name: CreateUser :one
 INSERT INTO users (id, username, password_hash, name, email, home_address)
 VALUES ($1, $2, $3, $4, $5, $6)
@@ -36,6 +54,24 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, e
 		arg.Email,
 		arg.HomeAddress,
 	)
+	var i User
+	err := row.Scan(
+		&i.ID,
+		&i.Username,
+		&i.PasswordHash,
+		&i.Name,
+		&i.Email,
+		&i.HomeAddress,
+	)
+	return i, err
+}
+
+const getUserByUsername = `-- name: GetUserByUsername :one
+SELECT id, username, password_hash, name, email, home_address FROM users where username = $1
+`
+
+func (q *Queries) GetUserByUsername(ctx context.Context, username string) (User, error) {
+	row := q.db.QueryRowContext(ctx, getUserByUsername, username)
 	var i User
 	err := row.Scan(
 		&i.ID,
