@@ -5,7 +5,6 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"fmt"
 	
 
 	"github.com/Rodrigo-Munoz-Salas/GeekText-Bookstore/internal/database"
