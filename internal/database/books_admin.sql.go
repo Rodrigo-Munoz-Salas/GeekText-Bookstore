@@ -72,6 +72,28 @@ func (q *Queries) CreatePublisher(ctx context.Context, arg CreatePublisherParams
 	return i, err
 }
 
+const getBookByISBN = `-- name: GetBookByISBN :one
+SELECT id, isbn, title, description, price, genre, publisher_id, year_published 
+FROM books 
+WHERE isbn = $1
+`
+
+func (q *Queries) GetBookByISBN(ctx context.Context, isbn string) (Book, error) {
+	row := q.db.QueryRowContext(ctx, getBookByISBN, isbn)
+	var i Book
+	err := row.Scan(
+		&i.ID,
+		&i.Isbn,
+		&i.Title,
+		&i.Description,
+		&i.Price,
+		&i.Genre,
+		&i.PublisherID,
+		&i.YearPublished,
+	)
+	return i, err
+}
+
 const getPublisherByName = `-- name: GetPublisherByName :one
 SELECT id FROM publishers WHERE name = $1
 `

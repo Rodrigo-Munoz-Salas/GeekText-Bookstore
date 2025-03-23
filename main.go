@@ -70,6 +70,8 @@ func main() {
 	v1Router.Get("/users", apiCfg.handlerGetUser)
 
 	v1Router.Post("/book_admin", apiCfg.handlerCreateBook)
+	v1Router.Get("/book_admin", apiCfg.handlerGetBookByIsbn)
+
 
 	v1Router.Post("/wishlists", apiCfg.handlerCreateWishlist)
 	v1Router.Post("/wishlist_books", apiCfg.handlerAddBookToWishlist)

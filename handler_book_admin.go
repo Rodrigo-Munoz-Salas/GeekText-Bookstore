@@ -72,3 +72,34 @@ func (apiCfg *apiConfig) handlerCreateBook(w http.ResponseWriter, r *http.Reques
 	// Respond with success message
 	responseWithJSON(w, 200, databaseBookToBook(book))
 }
+
+func (apiCfg *apiConfig) handlerGetBookByIsbn(w http.ResponseWriter, r *http.Request) {
+
+	// Define the parameters structure to receive the ISBN
+	type parameters struct {
+		ISBN string `json:"isbn"`
+	}
+
+	// Parse the request body
+	decoder := json.NewDecoder(r.Body)
+
+	params := parameters{}
+	err := decoder.Decode(&params)
+	if err != nil {
+		respondWithError(w, 400, fmt.Sprintf("Error parsing JSON: %v", err))
+		return
+	}
+
+	// Fetch the book details using the ISBN from the database
+	book, err := apiCfg.DB.GetBookByISBN(r.Context(), params.ISBN)
+
+	if err != nil {
+		respondWithError(w, 400, fmt.Sprintf("Book not found: %v", err))
+		return
+	}
+
+	// Respond with the book details as JSON
+	responseWithJSON(w, 200, book)
+}
+
+

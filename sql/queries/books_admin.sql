@@ -10,3 +10,9 @@ RETURNING *;
 
 -- name: GetPublisherByName :one
 SELECT id FROM publishers WHERE name = $1;
+
+-- name: GetBookByISBN :one
+SELECT isbn
+FROM books 
+WHERE isbn = $1;
+
