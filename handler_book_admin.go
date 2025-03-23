@@ -103,3 +103,49 @@ func (apiCfg *apiConfig) handlerGetBookByIsbn(w http.ResponseWriter, r *http.Req
 }
 
 
+func (apiCfg *apiConfig) handlerCreateAuthor(w http.ResponseWriter, r *http.Request) {
+	// Define the structure to map incoming JSON to
+	type parameters struct {
+		FirstName   string    `json:"first_name"`
+		LastName    string    `json:"last_name"`
+		Biography   string    `json:"biography"`
+		PublisherID uuid.UUID `json:"publisher_id"`
+	}
+
+	// Parse the incoming request body into the parameters struct
+	decoder := json.NewDecoder(r.Body)
+	params := parameters{}
+	err := decoder.Decode(&params)
+	if err != nil {
+		respondWithError(w, 400, fmt.Sprintf("Error parsing JSON: %v", err))
+		return
+	}
+
+	// Handle the biography as sql.NullString (if empty, it will be null)
+	biography := sql.NullString{}
+	if params.Biography != "" {
+		biography = sql.NullString{String: params.Biography, Valid: true}
+	}
+
+	// Handle the publisher_id as uuid.NullUUID
+	publisherID := uuid.NullUUID{UUID: params.PublisherID, Valid: true}
+
+	// Create the author in the database
+	authorID, err := apiCfg.DB.CreateAuthor(r.Context(), database.CreateAuthorParams{
+		FirstName:   params.FirstName,
+		LastName:    params.LastName,
+		Biography:   biography,
+		PublisherID: publisherID,
+	})
+	if err != nil {
+		respondWithError(w, 500, fmt.Sprintf("Error creating author: %v", err))
+		return
+	}
+
+	// Respond with the ID of the created author (or you can fetch and return more details if needed)
+	// Here, just returning the ID as a simple response
+	responseWithJSON(w, 200, map[string]interface{}{
+		"id": authorID,
+	})
+}
+

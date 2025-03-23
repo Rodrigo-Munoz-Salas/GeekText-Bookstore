@@ -12,6 +12,31 @@ import (
 	"github.com/google/uuid"
 )
 
+const createAuthor = `-- name: CreateAuthor :one
+INSERT INTO authors (id, first_name, last_name, biography, publisher_id)
+VALUES (gen_random_uuid(), $1, $2, $3, $4)
+RETURNING id
+`
+
+type CreateAuthorParams struct {
+	FirstName   string
+	LastName    string
+	Biography   sql.NullString
+	PublisherID uuid.NullUUID
+}
+
+func (q *Queries) CreateAuthor(ctx context.Context, arg CreateAuthorParams) (uuid.UUID, error) {
+	row := q.db.QueryRowContext(ctx, createAuthor,
+		arg.FirstName,
+		arg.LastName,
+		arg.Biography,
+		arg.PublisherID,
+	)
+	var id uuid.UUID
+	err := row.Scan(&id)
+	return id, err
+}
+
 const createBook = `-- name: CreateBook :one
 INSERT INTO books (id, isbn, title, description, price, genre, publisher_id, year_published)
 VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
