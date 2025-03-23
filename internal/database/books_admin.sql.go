@@ -119,6 +119,57 @@ func (q *Queries) GetBookByISBN(ctx context.Context, isbn string) (Book, error) 
 	return i, err
 }
 
+const getBookDetailsByBookId = `-- name: GetBookDetailsByBookId :one
+SELECT id, isbn, title, description, price, genre, publisher_id, year_published
+FROM books
+WHERE id = $1
+`
+
+func (q *Queries) GetBookDetailsByBookId(ctx context.Context, id uuid.UUID) (Book, error) {
+	row := q.db.QueryRowContext(ctx, getBookDetailsByBookId, id)
+	var i Book
+	err := row.Scan(
+		&i.ID,
+		&i.Isbn,
+		&i.Title,
+		&i.Description,
+		&i.Price,
+		&i.Genre,
+		&i.PublisherID,
+		&i.YearPublished,
+	)
+	return i, err
+}
+
+const getBookIdsByAuthorId = `-- name: GetBookIdsByAuthorId :many
+SELECT book_id
+FROM book_authors
+WHERE author_id = $1
+`
+
+func (q *Queries) GetBookIdsByAuthorId(ctx context.Context, authorID uuid.UUID) ([]uuid.UUID, error) {
+	rows, err := q.db.QueryContext(ctx, getBookIdsByAuthorId, authorID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []uuid.UUID
+	for rows.Next() {
+		var book_id uuid.UUID
+		if err := rows.Scan(&book_id); err != nil {
+			return nil, err
+		}
+		items = append(items, book_id)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getPublisherByName = `-- name: GetPublisherByName :one
 SELECT id FROM publishers WHERE name = $1
 `
