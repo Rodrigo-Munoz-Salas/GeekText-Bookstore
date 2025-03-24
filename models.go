@@ -5,6 +5,8 @@ import (
 
 	"github.com/Rodrigo-Munoz-Salas/GeekText-Bookstore/internal/database"
 	"github.com/google/uuid"
+
+	"time"
 )
 
 type User struct {
@@ -24,6 +26,25 @@ func databaseUserToUser(dbUser database.User) User {
 		Name:         dbUser.Name,
 		Email:        dbUser.Email,
 		HomeAddress:  dbUser.HomeAddress,
+	}
+}
+
+type CreditCard struct {
+	ID             uuid.UUID `json:"id"`
+	UserID         uuid.UUID `json:"user_id"`
+	CardNumber     string    `json:"card_number"`
+	ExpirationDate time.Time `json:"expiration_date"`
+	Cvv            string    `json:"cvv"`
+}
+
+func databaseCardToCard(dbCard database.CreditCard) CreditCard {
+
+	return CreditCard{
+		ID:             dbCard.ID,
+		UserID:         dbCard.UserID,
+		CardNumber:     dbCard.CardNumber,
+		ExpirationDate: dbCard.ExpirationDate,
+		Cvv:            dbCard.Cvv,
 	}
 }
 
@@ -57,7 +78,7 @@ func databaseBookWithWishlistToBookWithWishlist(dbWishlistBooks database.Wishlis
 
 type Book struct {
 	ID            uuid.UUID      `json:"id"`
-	Isbn          string 		 `json:"isbn"`
+	Isbn          string         `json:"isbn"`
 	Title         string         `json:"title"`
 	Description   sql.NullString `json:"description"`
 	Price         string         `json:"price"`
