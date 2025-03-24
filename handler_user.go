@@ -24,6 +24,7 @@ func toNullString(s string) sql.NullString {
 
 // Creates a new user
 func (apiCgf *apiConfig) handlerCreateUser(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintln(w, "User created (stub function)")
 	type parameters struct {
 		Username      string `json:"username"`
 		Password_hash string `json:"password_hash"`

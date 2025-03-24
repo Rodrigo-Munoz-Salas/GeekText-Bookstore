@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	
 
 	"github.com/Rodrigo-Munoz-Salas/GeekText-Bookstore/internal/database"
 	"github.com/go-chi/chi"
@@ -26,6 +27,10 @@ func main() {
 	if portString == "" {
 		log.Fatal("PORT is not found in the environment")
 	}
+
+	// CREATE A .env FILE AND ADD PORT={YOUR_PORT}
+	// Uncomment this line and test it
+	// fmt.Printf("PORT is: %v", portString)
 
 	// import our database connection from .env file
 	dbURL := os.Getenv("DB_URL")
@@ -64,6 +69,7 @@ func main() {
 	// Checking health endpoint and error handler
 	v1Router.Get("/health", handlerReadiness)
 	v1Router.Get("/err", handlerErr)
+	//v1Router.Post() <- this is to how create the router
 
 	// START FEATURE IMPLEMENTATIONS
 	v1Router.Post("/users", apiCfg.handlerCreateUser)
@@ -86,6 +92,10 @@ func main() {
 	v1Router.Get("/shopping_cart_books/subtotal", apiCfg.handlerGetCartSubtotal)
 	v1Router.Get("/shopping_cart_books/list", apiCfg.handlerGetCartBooks)
 	v1Router.Delete("/shopping_cart_books/delete", apiCfg.handlerDeleteBookFromCart)
+	v1Router.Post("/rating", apiCfg.handlerPostRating)
+	v1Router.Post("/comments", apiCfg.handlerPostComment)
+	v1Router.Get("/rating/{bookID}", apiCfg.handlerAvgRating)
+	v1Router.Get("/comments/{bookID}", apiCfg.handlerGetComments)
 
 	// STOP FEATURE IMPLEMENTATIONS, DO NOT TOUCH BELOW
 
