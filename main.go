@@ -68,6 +68,8 @@ func main() {
 	// START FEATURE IMPLEMENTATIONS
 	v1Router.Post("/users", apiCfg.handlerCreateUser)
 	v1Router.Get("/users", apiCfg.handlerGetUser)
+	v1Router.Put("/users/update", apiCfg.handlerUpdateUser)
+	v1Router.Post("/users/billing_info", apiCfg.handlerUserCreditCard)
 
 	v1Router.Post("/book_admin", apiCfg.handlerCreateBook)
 
