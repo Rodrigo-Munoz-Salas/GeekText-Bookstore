@@ -5,7 +5,6 @@ import (
 	"log"
 	"net/http"
 	"os"
-	
 
 	"github.com/Rodrigo-Munoz-Salas/GeekText-Bookstore/internal/database"
 	"github.com/go-chi/chi"
@@ -82,7 +81,6 @@ func main() {
 	v1Router.Post("/book_admin/author", apiCfg.handlerCreateAuthor)
 	v1Router.Get("/book_admin/author", apiCfg.handlerGetBooksByAuthorId)
 
-
 	v1Router.Post("/wishlists", apiCfg.handlerCreateWishlist)
 	v1Router.Post("/wishlist_books", apiCfg.handlerAddBookToWishlist)
 	v1Router.Delete("/wishlist_books/{wishlistBookID}", apiCfg.handlerRemoveBookFromWishlist)
@@ -96,6 +94,12 @@ func main() {
 	v1Router.Post("/comments", apiCfg.handlerPostComment)
 	v1Router.Get("/rating/{bookID}", apiCfg.handlerAvgRating)
 	v1Router.Get("/comments/{bookID}", apiCfg.handlerGetComments)
+
+	// Register API handlers from handler_books.go
+	v1Router.Get("/books/genre/{genre}", apiCfg.HandlerGetBooksByGenre)
+	v1Router.Get("/books/top-sellers", apiCfg.HandlerGetTopSellers)
+	v1Router.Get("/books/rating/{rating}", apiCfg.HandlerGetBooksByRating)
+	v1Router.Put("/books/discount", apiCfg.HandlerApplyDiscountToPublisher)
 
 	// STOP FEATURE IMPLEMENTATIONS, DO NOT TOUCH BELOW
 
