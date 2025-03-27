@@ -4,6 +4,9 @@ VALUES ($1, $2, $3)
 ON CONFLICT (wishlist_id, book_id) DO NOTHING
 RETURNING *;
 
+-- name: GetBookToDelete :one
+SELECT 1 FROM wishlist_books WHERE wishlist_id = $1 AND book_id = $2 LIMIT 1;
+
 -- name: DeleteBookFromWishlist :exec
 DELETE FROM wishlist_books WHERE wishlist_id = $1 AND book_id = $2;
 

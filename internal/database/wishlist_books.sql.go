@@ -45,6 +45,22 @@ func (q *Queries) DeleteBookFromWishlist(ctx context.Context, arg DeleteBookFrom
 	return err
 }
 
+const getBookToDelete = `-- name: GetBookToDelete :one
+SELECT 1 FROM wishlist_books WHERE wishlist_id = $1 AND book_id = $2 LIMIT 1
+`
+
+type GetBookToDeleteParams struct {
+	WishlistID uuid.UUID
+	BookID     uuid.UUID
+}
+
+func (q *Queries) GetBookToDelete(ctx context.Context, arg GetBookToDeleteParams) (int32, error) {
+	row := q.db.QueryRowContext(ctx, getBookToDelete, arg.WishlistID, arg.BookID)
+	var column_1 int32
+	err := row.Scan(&column_1)
+	return column_1, err
+}
+
 const getWishlistBooksByWishlistID = `-- name: GetWishlistBooksByWishlistID :many
 SELECT b.id, b.isbn, b.title, b.description, b.price, b.genre, b.publisher_id, b.year_published
 FROM books b
