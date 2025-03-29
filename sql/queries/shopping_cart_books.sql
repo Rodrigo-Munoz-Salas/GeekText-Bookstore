@@ -18,7 +18,7 @@ JOIN shopping_carts sc ON scb.cart_id = sc.id
 WHERE sc.user_id = $1;
 
 -- name: GetCartBooksByUserID :many
-SELECT scb.book_id, b.title, b.isbn, b.description, b.price, 
+SELECT scb.book_id, b.title, b.isbn, COALESCE(b.description, ''), b.price, 
         b.genre, b.publisher_id, b.year_published,
         COALESCE(scb.quantity,0) AS quantity
 FROM shopping_cart_books scb   
