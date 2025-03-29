@@ -12,6 +12,31 @@ import (
 	"github.com/google/uuid"
 )
 
+const createAuthor = `-- name: CreateAuthor :one
+INSERT INTO authors (id, first_name, last_name, biography, publisher_id)
+VALUES (gen_random_uuid(), $1, $2, $3, $4)
+RETURNING id
+`
+
+type CreateAuthorParams struct {
+	FirstName   string
+	LastName    string
+	Biography   sql.NullString
+	PublisherID uuid.NullUUID
+}
+
+func (q *Queries) CreateAuthor(ctx context.Context, arg CreateAuthorParams) (uuid.UUID, error) {
+	row := q.db.QueryRowContext(ctx, createAuthor,
+		arg.FirstName,
+		arg.LastName,
+		arg.Biography,
+		arg.PublisherID,
+	)
+	var id uuid.UUID
+	err := row.Scan(&id)
+	return id, err
+}
+
 const createBook = `-- name: CreateBook :one
 INSERT INTO books (id, isbn, title, description, price, genre, publisher_id, year_published)
 VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
@@ -70,6 +95,79 @@ func (q *Queries) CreatePublisher(ctx context.Context, arg CreatePublisherParams
 	var i Publisher
 	err := row.Scan(&i.ID, &i.Name)
 	return i, err
+}
+
+const getBookByISBN = `-- name: GetBookByISBN :one
+SELECT id, isbn, title, description, price, genre, publisher_id, year_published 
+FROM books 
+WHERE isbn = $1
+`
+
+func (q *Queries) GetBookByISBN(ctx context.Context, isbn string) (Book, error) {
+	row := q.db.QueryRowContext(ctx, getBookByISBN, isbn)
+	var i Book
+	err := row.Scan(
+		&i.ID,
+		&i.Isbn,
+		&i.Title,
+		&i.Description,
+		&i.Price,
+		&i.Genre,
+		&i.PublisherID,
+		&i.YearPublished,
+	)
+	return i, err
+}
+
+const getBookDetailsByBookId = `-- name: GetBookDetailsByBookId :one
+SELECT id, isbn, title, description, price, genre, publisher_id, year_published
+FROM books
+WHERE id = $1
+`
+
+func (q *Queries) GetBookDetailsByBookId(ctx context.Context, id uuid.UUID) (Book, error) {
+	row := q.db.QueryRowContext(ctx, getBookDetailsByBookId, id)
+	var i Book
+	err := row.Scan(
+		&i.ID,
+		&i.Isbn,
+		&i.Title,
+		&i.Description,
+		&i.Price,
+		&i.Genre,
+		&i.PublisherID,
+		&i.YearPublished,
+	)
+	return i, err
+}
+
+const getBookIdsByAuthorId = `-- name: GetBookIdsByAuthorId :many
+SELECT book_id
+FROM book_authors
+WHERE author_id = $1
+`
+
+func (q *Queries) GetBookIdsByAuthorId(ctx context.Context, authorID uuid.UUID) ([]uuid.UUID, error) {
+	rows, err := q.db.QueryContext(ctx, getBookIdsByAuthorId, authorID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []uuid.UUID
+	for rows.Next() {
+		var book_id uuid.UUID
+		if err := rows.Scan(&book_id); err != nil {
+			return nil, err
+		}
+		items = append(items, book_id)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
 const getPublisherByName = `-- name: GetPublisherByName :one

@@ -8,6 +8,7 @@ package database
 import (
 	"context"
 	"database/sql"
+	"time"
 
 	"github.com/google/uuid"
 )
@@ -66,12 +67,80 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, e
 	return i, err
 }
 
+const createUserCreditCard = `-- name: CreateUserCreditCard :one
+INSERT INTO credit_cards (id, user_id, card_number, expiration_date, cvv)
+VALUES ($1, $2, $3, $4, $5)
+RETURNING id, user_id, card_number, expiration_date, cvv
+`
+
+type CreateUserCreditCardParams struct {
+	ID             uuid.UUID
+	UserID         uuid.UUID
+	CardNumber     string
+	ExpirationDate time.Time
+	Cvv            string
+}
+
+func (q *Queries) CreateUserCreditCard(ctx context.Context, arg CreateUserCreditCardParams) (CreditCard, error) {
+	row := q.db.QueryRowContext(ctx, createUserCreditCard,
+		arg.ID,
+		arg.UserID,
+		arg.CardNumber,
+		arg.ExpirationDate,
+		arg.Cvv,
+	)
+	var i CreditCard
+	err := row.Scan(
+		&i.ID,
+		&i.UserID,
+		&i.CardNumber,
+		&i.ExpirationDate,
+		&i.Cvv,
+	)
+	return i, err
+}
+
 const getUserByUsername = `-- name: GetUserByUsername :one
 SELECT id, username, password_hash, name, email, home_address FROM users where username = $1
 `
 
 func (q *Queries) GetUserByUsername(ctx context.Context, username string) (User, error) {
 	row := q.db.QueryRowContext(ctx, getUserByUsername, username)
+	var i User
+	err := row.Scan(
+		&i.ID,
+		&i.Username,
+		&i.PasswordHash,
+		&i.Name,
+		&i.Email,
+		&i.HomeAddress,
+	)
+	return i, err
+}
+
+const updateUserByUsername = `-- name: UpdateUserByUsername :one
+UPDATE users SET
+    password_hash = CASE WHEN $2 != '' THEN $2 ELSE password_hash END,
+    name = CASE WHEN $3 != '' THEN $3 ELSE name END,
+    home_address = CASE WHEN $4 != '' THEN $4 ELSE home_address END
+WHERE username = $1
+RETURNING id, username, password_hash, name, email, home_address
+`
+
+type UpdateUserByUsernameParams struct {
+	Username string
+	Column2  interface{}
+	Column3  interface{}
+	Column4  interface{}
+}
+
+func (q *Queries) UpdateUserByUsername(ctx context.Context, arg UpdateUserByUsernameParams) (User, error) {
+	row := q.db.QueryRowContext(ctx, updateUserByUsername,
+		arg.Username,
+		arg.Column2,
+		arg.Column3,
+		arg.Column4,
+	)
 	var i User
 	err := row.Scan(
 		&i.ID,

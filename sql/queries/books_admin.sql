@@ -10,3 +10,24 @@ RETURNING *;
 
 -- name: GetPublisherByName :one
 SELECT id FROM publishers WHERE name = $1;
+
+-- name: GetBookByISBN :one
+SELECT id, isbn, title, description, price, genre, publisher_id, year_published 
+FROM books 
+WHERE isbn = $1;
+
+-- name: CreateAuthor :one
+INSERT INTO authors (id, first_name, last_name, biography, publisher_id)
+VALUES (gen_random_uuid(), $1, $2, $3, $4)
+RETURNING id;
+
+-- name: GetBookIdsByAuthorId :many
+SELECT book_id
+FROM book_authors
+WHERE author_id = $1;
+
+-- name: GetBookDetailsByBookId :one
+SELECT id, isbn, title, description, price, genre, publisher_id, year_published
+FROM books
+WHERE id = $1;
+

@@ -27,6 +27,10 @@ func main() {
 		log.Fatal("PORT is not found in the environment")
 	}
 
+	// CREATE A .env FILE AND ADD PORT={YOUR_PORT}
+	// Uncomment this line and test it
+	// fmt.Printf("PORT is: %v", portString)
+
 	// import our database connection from .env file
 	dbURL := os.Getenv("DB_URL")
 	if dbURL == "" {
@@ -64,10 +68,19 @@ func main() {
 	// Checking health endpoint and error handler
 	v1Router.Get("/health", handlerReadiness)
 	v1Router.Get("/err", handlerErr)
+	//v1Router.Post() <- this is to how create the router
 
 	// START FEATURE IMPLEMENTATIONS
 	v1Router.Post("/users", apiCfg.handlerCreateUser)
 	v1Router.Get("/users", apiCfg.handlerGetUser)
+	v1Router.Put("/users/update", apiCfg.handlerUpdateUser)
+	v1Router.Post("/users/billing_info", apiCfg.handlerUserCreditCard)
+
+
+	v1Router.Post("/book_admin", apiCfg.handlerCreateBook)
+	v1Router.Get("/book_admin", apiCfg.handlerGetBookByIsbn)
+	v1Router.Post("/book_admin/author", apiCfg.handlerCreateAuthor)
+	v1Router.Get("/book_admin/author", apiCfg.handlerGetBooksByAuthorId)
 
 	v1Router.Post("/wishlists", apiCfg.handlerCreateWishlist)
 	v1Router.Post("/wishlist_books", apiCfg.handlerAddBookToWishlist)
@@ -78,6 +91,16 @@ func main() {
 	v1Router.Get("/shopping_cart_books/subtotal", apiCfg.handlerGetCartSubtotal)
 	v1Router.Get("/shopping_cart_books/list", apiCfg.handlerGetCartBooks)
 	v1Router.Delete("/shopping_cart_books/delete", apiCfg.handlerDeleteBookFromCart)
+	v1Router.Post("/rating", apiCfg.handlerPostRating)
+	v1Router.Post("/comments", apiCfg.handlerPostComment)
+	v1Router.Get("/rating/{bookID}", apiCfg.handlerAvgRating)
+	v1Router.Get("/comments/{bookID}", apiCfg.handlerGetComments)
+
+	// Register API handlers from handler_books.go
+	v1Router.Get("/books/genre/{genre}", apiCfg.HandlerGetBooksByGenre)
+	v1Router.Get("/books/top-sellers", apiCfg.HandlerGetTopSellers)
+	v1Router.Get("/books/rating/{rating}", apiCfg.HandlerGetBooksByRating)
+	v1Router.Put("/books/discount", apiCfg.HandlerApplyDiscountToPublisher)
 
 	// STOP FEATURE IMPLEMENTATIONS, DO NOT TOUCH BELOW
 

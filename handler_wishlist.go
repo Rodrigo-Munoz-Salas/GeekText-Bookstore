@@ -3,6 +3,7 @@ package main
 import (
 	"database/sql"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 	"strings"
@@ -119,6 +120,21 @@ func (apiCfg *apiConfig) handlerRemoveBookFromWishlist(w http.ResponseWriter, r 
 	wishlistBookID, err := uuid.Parse(wishlistBookIDStr)
 	if err != nil {
 		respondWithError(w, 400, fmt.Sprintf("Couldn't parse wishlist book id: %v", err))
+	}
+
+	// Check if the book is in the wishlist
+	_, err = apiCfg.DB.GetBookToDelete(r.Context(), database.GetBookToDeleteParams{
+		WishlistID: params.WishlistID,
+		BookID:     wishlistBookID,
+	})
+
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			respondWithError(w, 400, "Book is not in the wishlist")
+			return
+		}
+		respondWithError(w, 400, fmt.Sprintf("Some error occurred: %v", err))
+		return
 	}
 
 	// Deleting book from the wishlist
