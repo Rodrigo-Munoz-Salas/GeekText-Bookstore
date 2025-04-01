@@ -85,6 +85,7 @@ type Book struct {
 	Genre         string         `json:"genre"`
 	PublisherID   uuid.NullUUID  `json:"publisher_id"`
 	YearPublished int32          `json:"year_published"`
+	CopiesSold    int32          `json:"copies_sold"`
 }
 
 func databaseBookToBook(dbBook database.Book) Book {
@@ -97,6 +98,7 @@ func databaseBookToBook(dbBook database.Book) Book {
 		Genre:         dbBook.Genre,
 		PublisherID:   dbBook.PublisherID,
 		YearPublished: dbBook.YearPublished,
+		CopiesSold:    dbBook.CopiesSold,
 	}
 }
 
