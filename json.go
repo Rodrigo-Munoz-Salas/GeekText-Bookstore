@@ -17,19 +17,37 @@ func respondWithError(w http.ResponseWriter, code int, msg string) {
 	})
 }
 
-func responseWithJSON(w http.ResponseWriter, code int, payload interface{}) {
-	// Marshal the payload into a json string
-	dat, err := json.Marshal(payload)
+func responseWithJSON(w http.ResponseWriter, code int, payload interface{}, message ...string) {
+	// Default message if none is provided
+	msg := ""
+	if len(message) > 0 {
+		msg = message[0] // Use the first provided message
+	}
 
-	// internal server error if Marshal process fails
+	/// Define a struct for the response
+	type Response struct {
+		Message string      `json:"message"`
+		Data    interface{} `json:"data"`
+	}
+
+	// Response object
+	response := Response{
+		Message: msg,
+		Data:    payload,
+	}
+
+	// Marshal the response into a JSON string
+	dat, err := json.Marshal(response)
+
+	// Internal server error if the Marshal process fails
 	if err != nil {
-		log.Printf("Failed to marshal JSON response: %v", payload)
-		w.WriteHeader(500)
+		log.Printf("Failed to marshal JSON response: %v", response)
+		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
-	// write the response header and body
-	w.Header().Add("Content-Type", "application/json")
+	// Write the response header and body
+	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(code)
 	w.Write(dat)
 }
