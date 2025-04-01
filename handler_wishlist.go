@@ -59,7 +59,7 @@ func (apiCgf *apiConfig) handlerCreateWishlist(w http.ResponseWriter, r *http.Re
 		return
 	}
 
-	responseWithJSON(w, 201, databaseWishlistToWishlist(wishlist))
+	responseWithJSON(w, 201, databaseWishlistToWishlist(wishlist), "The wishlist was successfully created with the following parameters:")
 }
 
 // add book to a wishlist
@@ -96,7 +96,7 @@ func (apiCgf *apiConfig) handlerAddBookToWishlist(w http.ResponseWriter, r *http
 		return
 	}
 
-	responseWithJSON(w, 201, databaseBookWithWishlistToBookWithWishlist(book_to_wishlist))
+	responseWithJSON(w, 201, databaseBookWithWishlistToBookWithWishlist(book_to_wishlist), "The book was successfully added to the wishlist")
 }
 
 // remove book from wishlist
@@ -147,7 +147,7 @@ func (apiCfg *apiConfig) handlerRemoveBookFromWishlist(w http.ResponseWriter, r 
 		return
 	}
 
-	responseWithJSON(w, 200, fmt.Sprintf(
+	responseWithJSON(w, 200, "", fmt.Sprintf(
 		"Book was successfully removed from the wishlist with ID: %v", params.WishlistID,
 	))
 
@@ -178,7 +178,7 @@ func (apiCfg *apiConfig) handlerRemoveBookFromWishlist(w http.ResponseWriter, r 
 			respondWithError(w, 500, fmt.Sprintf("Error adding book to cart: %v", err))
 			return
 		}
-		responseWithJSON(w, 200, fmt.Sprintf(
+		responseWithJSON(w, 200, "", fmt.Sprintf(
 			"Book was successfully added to shopping cart with user ID: %v", userID,
 		))
 	}
@@ -206,5 +206,5 @@ func (apiCfg *apiConfig) handlerGetWishlistBooks(w http.ResponseWriter, r *http.
 	}
 
 	// Respond with the books
-	responseWithJSON(w, 200, databaseBooksToBooks(books))
+	responseWithJSON(w, 200, databaseBooksToBooks(books), "The following books are in the wishlist:")
 }
