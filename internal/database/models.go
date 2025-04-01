@@ -28,6 +28,7 @@ type Book struct {
 	Genre         string
 	PublisherID   uuid.NullUUID
 	YearPublished int32
+	CopiesSold    int32
 }
 
 type BookAuthor struct {
