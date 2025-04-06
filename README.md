@@ -53,94 +53,6 @@ Applies a discount (e.g., 0.20 for 20%) to all books from the given publisher.
 
 ---
 
-## Wishlist Management System (by Rodrigo Munoz)
-
-This feature allows users to create their wishlists and populate them with books, as well as moving a book from a wishlist to their shopping cart.
-
-### API Endpoints
-
-All endpoints are accessed through the base URL: http://localhost:8080/v1
-
----
-
-### Create a Wishlist
-
-Note: All UUIDs are unique. You should replace those with the IDs you generate.
-
-**POST** `/books/wishlists`
-JSON Body:
-{
-    "user_id": "{user_UUID}",
-    "list_name": "{wishlist_name}"
-}
-
-Creates a wishlist with the provided name for the given user. A Maximum of 3 wishlists can be created for each user.
-
-**Example:** http://localhost:8080/v1/wishlists
-{
-    "user_id": "7b0e39e0-f1a5-43c8-a2d4-c661e562a3fe",
-    "list_name": "My Wishlist"
-}
-
----
-
-### Add a Book to a Wishlist
-
-**POST** `/wishlist_books`
-JSON Body:
-{
-  "wishlist_id": "{wishlist_UUID}",
-  "book_id": "{book_UUID}"
-}
-
-Adds a the provided book to the given wishlist.
-
-
-**Example:** http://localhost:8080/v1/wishlist_books
-{
-  "wishlist_id": "c2acaffc-8603-4f21-8105-0ac4e0392061",
-  "book_id": "03d9d733-d089-463b-a53d-9531ca69a758"
-}
-
-
----
-
-### Remove a Book from a Wishlist
-
-**DELETE** `/wishlist_books/{book_id}`  
-JSON Body:
-{
-  "wishlist_id": "c2acaffc-8603-4f21-8105-0ac4e0392061",
-  "to_shopping_cart": "yes" // optional field
-}
-
-Removes the given book from the provided wishlist. The user can automatically add it to the shopping cart of the optional field is sent.
-
-**Example:** http://localhost:8080//wishlist_books/03d9d733-d089-463b-a53d-9531ca69a758
-{
-  "wishlist_id": "c2acaffc-8603-4f21-8105-0ac4e0392061",
-  "to_shopping_cart": "yes"
-}
-
----
-
-### List all Books from a Wishlist
-
-**GET** `/wishlist_books`
-JSON Body:
-{
-  "wishlist_id": "{wishlist_UUID}"
-}
-
-Returns a list of book objects that belong to the given wishlist
-
-**Example:** http://localhost:8080/v1/wishlist_books
-{
-  "wishlist_id": "c2acaffc-8603-4f21-8105-0ac4e0392061"
-}
-
----
-
 ## Profile Management Feature (by Danery Hernandez)
  
  This feature allows users to create a profile, update their user details, and add credit cards to their account. This fetaure also allows administrators to view user details from any profile. 
@@ -239,62 +151,6 @@ Returns a list of book objects that belong to the given wishlist
  }
  
  ---
- 
- ## Book Rating and Commenting Feature (by Lily Meilan)
- 
- This feature allows users to create ratings and comments and also lets them retrieve the average rating and a list of comments for a given book.
- 
- ### API Endpoints
- 
- All endpoints are accessed through the base URL: http://localhost:8080/v1
- 
- ---
- 
- ### Create a Rating
- 
- **POST** `/rating`
- Creates a rating given a Book ID, a rating (must be from 1 - 5, inclusive), and a User ID.
- 
- **Example:** http://localhost:8080/v1/rating
- {
-     "book_id": "08d2132d-6851-42ce-b86d-a6dd97a1e27a",
-     "rating": 5,
-     "user_id": "abef78ce-85d7-446e-9b90-87ea29252823"
- }
- 
- ---
- 
- ### Create a Comment
- 
- **POST** `/comments`
- Creates a comment given a Book ID, a comment, and a User ID.
- 
- **Example:**: http://localhost:8080/v1/comments
- {
-     "book_id": "08d2132d-6851-42ce-b86d-a6dd97a1e27a",
-     "comment": "It was amazing!",
-     "user_id": "abef78ce-85d7-446e-9b90-87ea29252823"
- }
- 
- ---
- 
- ### Get the Average Rating of a Book
- 
- **GET** `/rating/{bookID}`
- Returns the average rating for a given book.
- 
- **Example:** http://localhost:8080/v1/rating/08d2132d-6851-42ce-b86d-a6dd97a1e27a
- 
- ---
- 
- ### List all Comments for a Book
- 
- **GET** `/comments/{bookID}`
- Returns a list of all the comments for a given book.
- 
- **Example:** http://localhost:8080/v1/comments/08d2132d-6851-42ce-b86d-a6dd97a1e27a
- 
- ---
 
 ## Shopping Cart Feature (by Jeremias Mendoza)
 
@@ -381,6 +237,7 @@ Removes a specific book from a user's cart.
 }
 
 ---
+
 ## Book Details Feature (by Arantza Mendoza)
 
 This feature allows users to create a book, retrieve a book by ISBN, lets and administrator create an author and retrieves books by author.
@@ -390,6 +247,7 @@ This feature allows users to create a book, retrieve a book by ISBN, lets and ad
 All endpoints are accessed through the base URL: http://localhost:8080/v1
 
 ---
+
 ### Create Book
 
 **POST** `/book_admin/`  
@@ -402,6 +260,7 @@ Creates a new book object with the provided details in the bookstore system, che
 **Example:** http://localhost:8080/v1/book_admin/{"isbn": "978-3-16-148410-0","title": "The Great Book","description": "A captivating journey of knowledge","price": 19.99,"genre": "Non-Fiction","publisher_name": "Great Publishing","year_published": 2023,"copies_sold": 1000}
 
 ---
+
 ### Retrieve Book by ISBN
 
 **GET** `/book_admin/`  
@@ -413,7 +272,7 @@ Retrieves the details of a book from the database using its ISBN. If no book is 
 
 **Example:** http://localhost:8080/v1/book_admin/{"isbn": "978-3-16-148410-0"}
 
-__ 
+---
 
 ### Admin can create an Author
 
@@ -426,7 +285,7 @@ Creates a new author object in the system, linking the author with a publisher b
 
 **Example:** http://localhost:8080/v1/book_admin/author/{"first_name": "John","last_name": "Doe","biography": "John Doe is an acclaimed author of fictional works.","publisher_id": "8c9f7d25-8d0d-4e7d-9e63-847ae15f5e4a"}
 
-__
+---
 
 ### Retrieve Books by Author
 
@@ -439,6 +298,148 @@ Retrieves a list of books associated with a given author by their unique author 
 
 **Example:** http://localhost:8080/v1/book_admin/author/{"author_id": "d600760d-e20e-499c-b7a1-17c448995ada"}
 
+---
+ 
+ ## Book Rating and Commenting Feature (by Lily Meilan)
+ 
+ This feature allows users to create ratings and comments and also lets them retrieve the average rating and a list of comments for a given book.
+ 
+ ### API Endpoints
+ 
+ All endpoints are accessed through the base URL: http://localhost:8080/v1
+ 
+ ---
+ 
+ ### Create a Rating
+ 
+ **POST** `/rating`
+ Creates a rating given a Book ID, a rating (must be from 1 - 5, inclusive), and a User ID.
+ 
+ **Example:** http://localhost:8080/v1/rating
+ {
+     "book_id": "08d2132d-6851-42ce-b86d-a6dd97a1e27a",
+     "rating": 5,
+     "user_id": "abef78ce-85d7-446e-9b90-87ea29252823"
+ }
+ 
+ ---
+ 
+ ### Create a Comment
+ 
+ **POST** `/comments`
+ Creates a comment given a Book ID, a comment, and a User ID.
+ 
+ **Example:**: http://localhost:8080/v1/comments
+ {
+     "book_id": "08d2132d-6851-42ce-b86d-a6dd97a1e27a",
+     "comment": "It was amazing!",
+     "user_id": "abef78ce-85d7-446e-9b90-87ea29252823"
+ }
+ 
+ ---
+ 
+ ### Get the Average Rating of a Book
+ 
+ **GET** `/rating/{bookID}`
+ Returns the average rating for a given book.
+ 
+ **Example:** http://localhost:8080/v1/rating/08d2132d-6851-42ce-b86d-a6dd97a1e27a
+ 
+ ---
+ 
+ ### List all Comments for a Book
+ 
+ **GET** `/comments/{bookID}`
+ Returns a list of all the comments for a given book.
+ 
+ **Example:** http://localhost:8080/v1/comments/08d2132d-6851-42ce-b86d-a6dd97a1e27a
+
+---
+
+## Wishlist Management System (by Rodrigo Munoz)
+
+This feature allows users to create their wishlists and populate them with books, as well as moving a book from a wishlist to their shopping cart.
+
+### API Endpoints
+
+All endpoints are accessed through the base URL: http://localhost:8080/v1
+
+---
+
+### Create a Wishlist
+
+Note: All UUIDs are unique. You should replace those with the IDs you generate.
+
+**POST** `/books/wishlists`
+JSON Body:
+{
+    "user_id": "{user_UUID}",
+    "list_name": "{wishlist_name}"
+}
+
+Creates a wishlist with the provided name for the given user. A Maximum of 3 wishlists can be created for each user.
+
+**Example:** http://localhost:8080/v1/wishlists
+{
+    "user_id": "7b0e39e0-f1a5-43c8-a2d4-c661e562a3fe",
+    "list_name": "My Wishlist"
+}
+
+---
+
+### Add a Book to a Wishlist
+
+**POST** `/wishlist_books`
+JSON Body:
+{
+  "wishlist_id": "{wishlist_UUID}",
+  "book_id": "{book_UUID}"
+}
+
+Adds a the provided book to the given wishlist.
+
+
+**Example:** http://localhost:8080/v1/wishlist_books
+{
+  "wishlist_id": "c2acaffc-8603-4f21-8105-0ac4e0392061",
+  "book_id": "03d9d733-d089-463b-a53d-9531ca69a758"
+}
+
+---
+
+### Remove a Book from a Wishlist
+
+**DELETE** `/wishlist_books/{book_id}`  
+JSON Body:
+{
+  "wishlist_id": "c2acaffc-8603-4f21-8105-0ac4e0392061",
+  "to_shopping_cart": "yes" // optional field
+}
+
+Removes the given book from the provided wishlist. The user can automatically add it to the shopping cart of the optional field is sent.
+
+**Example:** http://localhost:8080//wishlist_books/03d9d733-d089-463b-a53d-9531ca69a758
+{
+  "wishlist_id": "c2acaffc-8603-4f21-8105-0ac4e0392061",
+  "to_shopping_cart": "yes"
+}
+
+---
+
+### List all Books from a Wishlist
+
+**GET** `/wishlist_books`
+JSON Body:
+{
+  "wishlist_id": "{wishlist_UUID}"
+}
+
+Returns a list of book objects that belong to the given wishlist
+
+**Example:** http://localhost:8080/v1/wishlist_books
+{
+  "wishlist_id": "c2acaffc-8603-4f21-8105-0ac4e0392061"
+}
 
 
 
