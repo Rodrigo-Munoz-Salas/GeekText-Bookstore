@@ -392,7 +392,7 @@ All endpoints are accessed through the base URL: http://localhost:8080/v1
 ---
 ### Create Book
 
-**POST** ‘/book_admin/’  
+**POST** `/book_admin/`  
 Creates a book object in the bookstore system.
 
 JSON Body: {"isbn": "{isbn}","title": "{title}","description": "{description}","price": "{price}","genre": "{genre}","publisher_name": "{publisher_name}",year_published": "{year_published}","copies_sold": "{copies_sold}"}
@@ -404,7 +404,7 @@ Creates a new book object with the provided details in the bookstore system, che
 ---
 ### Retrieve Book by ISBN
 
-**GET** ‘/book_admin/’  
+**GET** `/book_admin/`  
 Retrieves a book object from the bookstore system using its ISBN.
 
 JSON body: {"isbn": "978-3-16-148410-0"}
@@ -417,7 +417,7 @@ __
 
 ### Admin can create an Author
 
-**POST** ‘/book_admin/author’  
+**POST** `/book_admin/author`  
 Lets an admin create an author object in the system associated with a publisher.
 
 JSON body: {"first_name": "{first_name}","last_name": "{last_name}","biography": "{biography}","publisher_id": "{publisher_id}"}
@@ -430,7 +430,7 @@ __
 
 ### Retrieve Books by Author
 
-**GET** ‘/book_admin/author/{author_id}’
+**GET** `/book_admin/author/{author_id}`
 Retrieves a list of books written by a specific author.
 
 JSON body: {"author_id": "{author_id}"}
