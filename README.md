@@ -6,300 +6,89 @@ This is a RESTful API for a ficticious bookstore called GeekText
 
 The vendor folder already has all the required modules
 
-## Book Browsing and Sorting Feature (by Pierson Mandell)
+## Shopping Cart Feature (by Jeremias Mendoza)
 
-This feature allows users to browse books by genre, rating, or top-seller status, and lets administrators apply discounts to books by publisher.
-
-### API Endpoints
-
-All endpoints are accessed through the base URL: http://localhost:8080/v1
-
----
-
-### Browse Books by Genre
-
-**GET** `/books/genre/{genre}`  
-Returns a list of books that match the specified genre.
-
-**Example:** http://localhost:8080/v1/books/genre/Fantasy
-
----
-
-### Browse Books by Rating
-
-**GET** `/books/rating/{rating}`  
-Returns books with an average rating greater than or equal to the specified rating.
-
-**Example:** http://localhost:8080/v1/books/rating/4
-
----
-
-### Get Top 10 Best-Selling Books
-
-**GET** `/books/top-sellers`  
-Returns the 10 most recently published books.
-
-**Example:** http://localhost:8080/v1/books/top-sellers
-
----
-
-### Apply Discount to Publisher’s Books
-
-**PUT** `/books/discount?discount={discount}&publisher_id={publisher_id}`  
-Applies a discount (e.g., 0.20 for 20%) to all books from the given publisher.
-
-**Example:** http://localhost:8080/v1/books/discount?discount=0.20&publisher_id=660e8400-e29b-41d4-a716-446655440001
-
-
----
-
-
-## Profile Management Feature (by Danery Hernandez)
-
-This feature allows users to create a profile, update their user details, and add credit cards to their account. This fetaure also allows administrators to view user details from any profile. 
+This feature allows for users to add books to their shopping cart, retrieve the subtotal of their cart, retrieve the list of books in their cart, and remove books from their cart.
 
 ### API Endpoints
 
 All endpoints are accessed through the base URL: http://localhost:8080/v1
 
----
+--- 
 
-### Create a profile
+### Add a book to User's Shopping Cart
 
-**POST** `/users`  
-
-JSON Body:
-{
-    "username": "{username}",
-    "password_hash": "{password}",
-    "name": "{optional_name}",
-    "email": "{optional_email_address}",
-    "home_address": "{optional_home_address}"
-}
-
-Creates a user profile given the user details provided.
-
-**Example:** http://localhost:8080/v1/users
-{
-    "username": "dhernandez",
-    "password_hash": "1234",
-    "name": "Danery",
-    "email": "daneryh23@gmail.com"
-}
-
----
-
-### Retrieve user details given username
-
-**GET** `/users`
+**POST** `/shopping_cart_books`
 
 JSON Body:
 {
-    "username": "{username}"
+    "user_id": "{user_id}",
+    "book_id": "{book_id}"
 }
 
-Returns user object that corresponds with given username.
+Adds a specific book to a user's shopping cart.
 
-**Example:** http://localhost:8080/v1/users
+**Example:** http://localhost:8080/v1/shopping_cart_books
 {
-    "username": "roary22"
+    "user_id": "80df9960-5f09-468f-a365-f2f404d01b0",
+    "book_id": "cf5b0bf7-2617-44c1-b864-cc7f73782f09"
 }
 
 ---
 
-### Update user details except for email address
+### Retrieve User's Shopping Cart Subtotal
 
-**PUT** `/users/update`
+**GET** `/shopping_cart_books/subtotal`
 
 JSON Body:
 {
-    "username": "{username}",
-    "password_hash": "{optional_new_password}",
-    "name": "{optional_new_name}",
-    "home_address": "{optional_new_home_address}"
+    "user_id": "{user_id}"
 }
 
-Updates profile given username and any field with new param. value (excludes email address)
+Calculates and returns the subtotal of all books in the user’s cart.
 
-**Example:** http://localhost:8080/v1/users/update
+**Example:** http://localhost:8080/v1/shopping_cart_books/subtotal
 {
-    "username": "roary22",
-    "home_address": "FIU BBC Campus"
+    "user_id": "80df9960-5f09-468f-a365-f2f404d01b0"
 }
 
 ---
 
-### Creates credit card object in user profile
+### Retrieve List of Books in User's Shopping Cart
 
-**POST** `/users/billing_info`
+**GET** `/shopping_cart_books/list`
 
 JSON Body:
 {
-    "username": "{username}",
-    "card_number": "{16_digit_card_number}",
-    "expiration_date": "{expiration_month_and_year}",
-    "cvv": "{cvv}"
+    "user_id": "{user_id}"
 }
 
-Creates credit card object to profile that corresponds with given username
+Returns a list of all books currently in the user's cart.
 
-**Example:** http://localhost:8080/v1/users/billing_info
+**Example:** http://localhost:8080/v1/shopping_cart_books/list
 {
-    "username": "roary22",
-    "card_number": "7777777788888888",
-    "expiration_date": "10/2029",
-    "cvv": "673"
-}
-
-
----
-
-
-## Book Rating and Commenting Feature (by Lily Meilan)
-
-This feature allows users to create ratings and comments and also lets them retrieve the average rating and a list of comments for a given book.
-
-### API Endpoints
-
-All endpoints are accessed through the base URL: http://localhost:8080/v1
-
----
-
-### Create a Rating
-
-**POST** `/rating`
-Creates a rating given a Book ID, a rating (must be from 1 - 5, inclusive), and a User ID.
-
-**Example:** http://localhost:8080/v1/rating
-{
-    "book_id": "08d2132d-6851-42ce-b86d-a6dd97a1e27a",
-    "rating": 5,
-    "user_id": "abef78ce-85d7-446e-9b90-87ea29252823"
+    "user_id": "80df9960-5f09-468f-a365-f2f404d01b0"
 }
 
 ---
 
-### Create a Comment
+### Remove Book from User's Shopping Cart
 
-**POST** `/comments`
-Creates a comment given a Book ID, a comment, and a User ID.
+**DELETE** `/shopping_cart_books/delete`
 
-**Example:**: http://localhost:8080/v1/comments
-{
-    "book_id": "08d2132d-6851-42ce-b86d-a6dd97a1e27a",
-    "comment": "It was amazing!",
-    "user_id": "abef78ce-85d7-446e-9b90-87ea29252823"
-}
-
----
-
-### Get the Average Rating of a Book
-
-**GET** `/rating/{bookID}`
-Returns the average rating for a given book.
-
-**Example:** http://localhost:8080/v1/rating/08d2132d-6851-42ce-b86d-a6dd97a1e27a
-
----
-
-### List all Comments for a Book
-
-**GET** `/comments/{bookID}`
-Returns a list of all the comments for a given book.
-
-**Example:** http://localhost:8080/v1/comments/08d2132d-6851-42ce-b86d-a6dd97a1e27a
-
-
----
-
-
-## Wishlist Management System (by Rodrigo Munoz)
-
-This feature allows users to create their wishlists and populate them with books, as well as moving a book from a wishlist to their shopping cart.
-
-### API Endpoints
-
-All endpoints are accessed through the base URL: http://localhost:8080/v1
-
----
-
-### Create a Wishlist
-
-Note: All UUIDs are unique. You should replace those with the IDs you generate.
-
-**POST** `/books/wishlists`
 JSON Body:
 {
-    "user_id": "{user_UUID}",
-    "list_name": "{wishlist_name}"
+    "user_id": "{user_id}",
+    "book_id": "{book_id}"
 }
 
-Creates a wishlist with the provided name for the given user. A Maximum of 3 wishlists can be created for each user.
+Removes a specific book from a user's cart.
 
-**Example:** http://localhost:8080/v1/wishlists
+**Example:** http://localhost:8080/v1/shopping_cart_books/delete
 {
-    "user_id": "7b0e39e0-f1a5-43c8-a2d4-c661e562a3fe",
-    "list_name": "My Wishlist"
+    "user_id": "80df9960-5f09-468f-a365-f2f404d01b0",
+    "book_id": "cf5b0bf7-2617-44c1-b864-cc7f73782f09"
 }
-
----
-
-### Add a Book to a Wishlist
-
-**POST** `/wishlist_books`
-JSON Body:
-{
-  "wishlist_id": "{wishlist_UUID}",
-  "book_id": "{book_UUID}"
-}
-
-Adds a the provided book to the given wishlist.
-
-
-**Example:** http://localhost:8080/v1/wishlist_books
-{
-  "wishlist_id": "c2acaffc-8603-4f21-8105-0ac4e0392061",
-  "book_id": "03d9d733-d089-463b-a53d-9531ca69a758"
-}
-
-
----
-
-### Remove a Book from a Wishlist
-
-**DELETE** `/wishlist_books/{book_id}`  
-JSON Body:
-{
-  "wishlist_id": "c2acaffc-8603-4f21-8105-0ac4e0392061",
-  "to_shopping_cart": "yes" // optional field
-}
-
-Removes the given book from the provided wishlist. The user can automatically add it to the shopping cart of the optional field is sent.
-
-**Example:** http://localhost:8080//wishlist_books/03d9d733-d089-463b-a53d-9531ca69a758
-{
-  "wishlist_id": "c2acaffc-8603-4f21-8105-0ac4e0392061",
-  "to_shopping_cart": "yes"
-}
-
----
-
-### List all Books from a Wishlist
-
-**GET** `/wishlist_books`
-JSON Body:
-{
-  "wishlist_id": "{wishlist_UUID}"
-}
-
-Returns a list of book objects that belong to the given wishlist
-
-**Example:** http://localhost:8080/v1/wishlist_books
-{
-  "wishlist_id": "c2acaffc-8603-4f21-8105-0ac4e0392061"
-}
-
-
 
 
 

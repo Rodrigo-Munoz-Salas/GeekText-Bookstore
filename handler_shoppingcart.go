@@ -49,7 +49,7 @@ func (apiCfg *apiConfig) handlerAddBookToCart(w http.ResponseWriter, r *http.Req
 	}
 
 	// Respond with success
-	responseWithJSON(w, 200, "Book added to cart successfully")
+	responseWithJSON(w, 200, "No fetched data", "Book added to cart successfully")
 }
 
 // Retrieves Subtotal of cart by user_id
@@ -75,7 +75,7 @@ func (apiCfg *apiConfig) handlerGetCartSubtotal(w http.ResponseWriter, r *http.R
 	}
 
 	// Respond with the subtotal
-	responseWithJSON(w, 200, map[string]float64{"subtotal": subtotal})
+	responseWithJSON(w, 200, map[string]float64{"subtotal": subtotal}, "Shopping Cart Subtotal:")
 }
 
 // Retrieve List of Books in Cart by user_id
@@ -100,7 +100,7 @@ func (apiCfg *apiConfig) handlerGetCartBooks(w http.ResponseWriter, r *http.Requ
 	}
 
 	// Respond with the books
-	responseWithJSON(w, 200, books)
+	responseWithJSON(w, 200, books, "Books in Shopping Cart:")
 }
 
 // Deletes a book from the users cart
@@ -155,5 +155,5 @@ func (apiCfg *apiConfig) handlerDeleteBookFromCart(w http.ResponseWriter, r *htt
 	}
 
 	// Respond with success
-	responseWithJSON(w, 200, "Book Deleted from cart successfully")
+	responseWithJSON(w, 200, "No fetched data", "Book Deleted from cart successfully")
 }
