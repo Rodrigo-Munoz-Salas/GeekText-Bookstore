@@ -54,6 +54,107 @@ Applies a discount (e.g., 0.20 for 20%) to all books from the given publisher.
 ---
 
 
+## Profile Management Feature (by Danery Hernandez)
+
+This feature allows users to create a profile, update their user details, and add credit cards to their account. This fetaure also allows administrators to view user details from any profile. 
+
+### API Endpoints
+
+All endpoints are accessed through the base URL: http://localhost:8080/v1
+
+---
+
+### Create a profile
+
+**POST** `/users`  
+
+JSON Body:
+{
+    "username": "{username}",
+    "password_hash": "{password}",
+    "name": "{optional_name}",
+    "email": "{optional_email_address}",
+    "home_address": "{optional_home_address}"
+}
+
+Creates a user profile given the user details provided.
+
+**Example:** http://localhost:8080/v1/users
+{
+    "username": "dhernandez",
+    "password_hash": "1234",
+    "name": "Danery",
+    "email": "daneryh23@gmail.com"
+}
+
+---
+
+### Retrieve user details given username
+
+**GET** `/users`
+
+JSON Body:
+{
+    "username": "{username}"
+}
+
+Returns user object that corresponds with given username.
+
+**Example:** http://localhost:8080/v1/users
+{
+    "username": "roary22"
+}
+
+---
+
+### Update user details except for email address
+
+**PUT** `/users/update`
+
+JSON Body:
+{
+    "username": "{username}",
+    "password_hash": "{optional_new_password}",
+    "name": "{optional_new_name}",
+    "home_address": "{optional_new_home_address}"
+}
+
+Updates profile given username and any field with new param. value (excludes email address)
+
+**Example:** http://localhost:8080/v1/users/update
+{
+    "username": "roary22",
+    "home_address": "FIU BBC Campus"
+}
+
+---
+
+### Creates credit card object in user profile
+
+**POST** `/users/billing_info`
+
+JSON Body:
+{
+    "username": "{username}",
+    "card_number": "{16_digit_card_number}",
+    "expiration_date": "{expiration_month_and_year}",
+    "cvv": "{cvv}"
+}
+
+Creates credit card object to profile that corresponds with given username
+
+**Example:** http://localhost:8080/v1/users/billing_info
+{
+    "username": "roary22",
+    "card_number": "7777777788888888",
+    "expiration_date": "10/2029",
+    "cvv": "673"
+}
+
+
+---
+
+
 ## Book Rating and Commenting Feature (by Lily Meilan)
 
 This feature allows users to create ratings and comments and also lets them retrieve the average rating and a list of comments for a given book.
