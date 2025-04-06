@@ -146,6 +146,7 @@ func (apiCfg *apiConfig) handlerCreateAuthor(w http.ResponseWriter, r *http.Requ
 	// Respond with the ID of the created author (or you can fetch and return more details if needed)
 	// Here, just returning the ID as a simple response
 	responseWithJSON(w, 200, map[string]interface{}{
+		"message" : "Author successfully created.",
 		"id": authorID,
 	})
 }
