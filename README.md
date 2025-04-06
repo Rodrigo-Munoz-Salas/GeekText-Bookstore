@@ -51,7 +51,65 @@ Applies a discount (e.g., 0.20 for 20%) to all books from the given publisher.
 **Example:** http://localhost:8080/v1/books/discount?discount=0.20&publisher_id=660e8400-e29b-41d4-a716-446655440001
 
 
+---
 
+
+## Book Rating and Commenting Feature (by Lily Meilan)
+
+This feature allows users to create ratings and comments and also lets them retrieve the average rating and a list of comments for a given book.
+
+### API Endpoints
+
+All endpoints are accessed through the base URL: http://localhost:8080/v1
+
+---
+
+### Create a Rating
+
+**POST** `/rating`
+Creates a rating given a Book ID, a rating (must be from 1 - 5, inclusive), and a User ID.
+
+**Example:** http://localhost:8080/v1/rating
+{
+    "book_id": "08d2132d-6851-42ce-b86d-a6dd97a1e27a",
+    "rating": 5,
+    "user_id": "abef78ce-85d7-446e-9b90-87ea29252823"
+}
+
+---
+
+### Create a Comment
+
+**POST** `/comments`
+Creates a comment given a Book ID, a comment, and a User ID.
+
+**Example:**: http://localhost:8080/v1/comments
+{
+    "book_id": "08d2132d-6851-42ce-b86d-a6dd97a1e27a",
+    "comment": "It was amazing!",
+    "user_id": "abef78ce-85d7-446e-9b90-87ea29252823"
+}
+
+---
+
+### Get the Average Rating of a Book
+
+**GET** `/rating/{bookID}`
+Returns the average rating for a given book.
+
+**Example:** http://localhost:8080/v1/rating/08d2132d-6851-42ce-b86d-a6dd97a1e27a
+
+---
+
+### List all Comments for a Book
+
+**GET** `/comments/{bookID}`
+Returns a list of all the comments for a given book.
+
+**Example:** http://localhost:8080/v1/comments/08d2132d-6851-42ce-b86d-a6dd97a1e27a
+
+
+---
 
 
 ## Wishlist Management System (by Rodrigo Munoz)
