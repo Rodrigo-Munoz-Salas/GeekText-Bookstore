@@ -6,7 +6,7 @@ This is a RESTful API for a ficticious bookstore called GeekText
 
 The vendor folder already has all the required modules
 
-##Shopping Cart Feature (by Jeremias Mendoza)
+## Shopping Cart Feature (by Jeremias Mendoza)
 
 This feature allows for users to add books to their shopping cart, retrieve the subtotal of their cart, retrieve the list of books in their cart, and remove books from their cart.
 
