@@ -1,6 +1,6 @@
 -- name: CreateBook :one
-INSERT INTO books (id, isbn, title, description, price, genre, publisher_id, year_published)
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+INSERT INTO books (id, isbn, title, description, price, genre, publisher_id, year_published, copies_sold)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
 RETURNING *;
 
 -- name: CreatePublisher :one
@@ -12,7 +12,7 @@ RETURNING *;
 SELECT id FROM publishers WHERE name = $1;
 
 -- name: GetBookByISBN :one
-SELECT id, isbn, title, description, price, genre, publisher_id, year_published 
+SELECT id, isbn, title, description, price, genre, publisher_id, year_published, copies_sold
 FROM books 
 WHERE isbn = $1;
 
@@ -27,7 +27,7 @@ FROM book_authors
 WHERE author_id = $1;
 
 -- name: GetBookDetailsByBookId :one
-SELECT id, isbn, title, description, price, genre, publisher_id, year_published
+SELECT id, isbn, title, description, price, genre, publisher_id, year_published, copies_sold
 FROM books
 WHERE id = $1;
 

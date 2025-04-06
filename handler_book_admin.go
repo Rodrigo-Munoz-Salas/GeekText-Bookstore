@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+
 	"github.com/Rodrigo-Munoz-Salas/GeekText-Bookstore/internal/database"
 	"github.com/google/uuid"
 )
@@ -19,6 +20,7 @@ func (apiCfg *apiConfig) handlerCreateBook(w http.ResponseWriter, r *http.Reques
 		Genre         string  `json:"genre"`
 		PublisherName string  `json:"publisher_name"`
 		YearPublished int     `json:"year_published"`
+		CopiesSold    int     `json:"copies_sold"`
 	}
 
 	decoder := json.NewDecoder(r.Body)
@@ -60,6 +62,7 @@ func (apiCfg *apiConfig) handlerCreateBook(w http.ResponseWriter, r *http.Reques
 		Genre:         params.Genre,
 		PublisherID:   uuid.NullUUID{UUID: publisherID, Valid: true},
 		YearPublished: int32(params.YearPublished),
+		CopiesSold:    int32(params.CopiesSold),
 	})
 
 	// Check if there is an error while adding the book to the DB
@@ -100,7 +103,6 @@ func (apiCfg *apiConfig) handlerGetBookByIsbn(w http.ResponseWriter, r *http.Req
 	// Respond with the book details as JSON
 	responseWithJSON(w, 200, book)
 }
-
 
 func (apiCfg *apiConfig) handlerCreateAuthor(w http.ResponseWriter, r *http.Request) {
 	// Define the structure to map incoming JSON to
@@ -144,43 +146,44 @@ func (apiCfg *apiConfig) handlerCreateAuthor(w http.ResponseWriter, r *http.Requ
 	// Respond with the ID of the created author (or you can fetch and return more details if needed)
 	// Here, just returning the ID as a simple response
 	responseWithJSON(w, 200, map[string]interface{}{
+		"message" : "Author successfully created.",
 		"id": authorID,
 	})
 }
 
 func (apiCfg *apiConfig) handlerGetBooksByAuthorId(w http.ResponseWriter, r *http.Request) {
-    // Define a struct to hold the request body
-    var requestBody struct {
-        AuthorID uuid.UUID `json:"author_id"`
-    }
+	// Define a struct to hold the request body
+	var requestBody struct {
+		AuthorID uuid.UUID `json:"author_id"`
+	}
 
-    // Decode the request body
-    err := json.NewDecoder(r.Body).Decode(&requestBody)
-    if err != nil {
-        // Send back a 400 Bad Request response with an error message
-        responseWithJSON(w, http.StatusBadRequest, map[string]string{"error": "Invalid request body"})
-        return
-    }
+	// Decode the request body
+	err := json.NewDecoder(r.Body).Decode(&requestBody)
+	if err != nil {
+		// Send back a 400 Bad Request response with an error message
+		responseWithJSON(w, http.StatusBadRequest, map[string]string{"error": "Invalid request body"})
+		return
+	}
 
-    // Get book IDs by author ID from the database
-    bookIds, err := apiCfg.DB.GetBookIdsByAuthorId(r.Context(), requestBody.AuthorID)
-    if err != nil {
-        // Send back a 500 Internal Server Error response if there's an issue fetching book IDs
-        responseWithJSON(w, http.StatusInternalServerError, map[string]string{"error": "Error retrieving book IDs"})
-        return
-    }
+	// Get book IDs by author ID from the database
+	bookIds, err := apiCfg.DB.GetBookIdsByAuthorId(r.Context(), requestBody.AuthorID)
+	if err != nil {
+		// Send back a 500 Internal Server Error response if there's an issue fetching book IDs
+		responseWithJSON(w, http.StatusInternalServerError, map[string]string{"error": "Error retrieving book IDs"})
+		return
+	}
 
-    // Fetch book details for each book ID
-    var books []database.Book
-    for _, bookId := range bookIds {
-        book, err := apiCfg.DB.GetBookDetailsByBookId(r.Context(), bookId)
-        if err != nil {
-            // Handle error for individual book fetching (you may log or ignore it)
-            continue // Skip this book if there's an error
-        }
-        books = append(books, book)
-    }
+	// Fetch book details for each book ID
+	var books []database.Book
+	for _, bookId := range bookIds {
+		book, err := apiCfg.DB.GetBookDetailsByBookId(r.Context(), bookId)
+		if err != nil {
+			// Handle error for individual book fetching (you may log or ignore it)
+			continue // Skip this book if there's an error
+		}
+		books = append(books, book)
+	}
 
-    // Send back a 200 OK response with the books as JSON
-    responseWithJSON(w, 200, books)
+	// Send back a 200 OK response with the books as JSON
+	responseWithJSON(w, 200, books)
 }

@@ -38,9 +38,9 @@ func (q *Queries) CreateAuthor(ctx context.Context, arg CreateAuthorParams) (uui
 }
 
 const createBook = `-- name: CreateBook :one
-INSERT INTO books (id, isbn, title, description, price, genre, publisher_id, year_published)
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
-RETURNING id, isbn, title, description, price, genre, publisher_id, year_published
+INSERT INTO books (id, isbn, title, description, price, genre, publisher_id, year_published, copies_sold)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+RETURNING id, isbn, title, description, price, genre, publisher_id, year_published, copies_sold
 `
 
 type CreateBookParams struct {
@@ -52,6 +52,7 @@ type CreateBookParams struct {
 	Genre         string
 	PublisherID   uuid.NullUUID
 	YearPublished int32
+	CopiesSold    int32
 }
 
 func (q *Queries) CreateBook(ctx context.Context, arg CreateBookParams) (Book, error) {
@@ -64,6 +65,7 @@ func (q *Queries) CreateBook(ctx context.Context, arg CreateBookParams) (Book, e
 		arg.Genre,
 		arg.PublisherID,
 		arg.YearPublished,
+		arg.CopiesSold,
 	)
 	var i Book
 	err := row.Scan(
@@ -75,6 +77,7 @@ func (q *Queries) CreateBook(ctx context.Context, arg CreateBookParams) (Book, e
 		&i.Genre,
 		&i.PublisherID,
 		&i.YearPublished,
+		&i.CopiesSold,
 	)
 	return i, err
 }
@@ -98,7 +101,7 @@ func (q *Queries) CreatePublisher(ctx context.Context, arg CreatePublisherParams
 }
 
 const getBookByISBN = `-- name: GetBookByISBN :one
-SELECT id, isbn, title, description, price, genre, publisher_id, year_published 
+SELECT id, isbn, title, description, price, genre, publisher_id, year_published, copies_sold
 FROM books 
 WHERE isbn = $1
 `
@@ -115,12 +118,13 @@ func (q *Queries) GetBookByISBN(ctx context.Context, isbn string) (Book, error) 
 		&i.Genre,
 		&i.PublisherID,
 		&i.YearPublished,
+		&i.CopiesSold,
 	)
 	return i, err
 }
 
 const getBookDetailsByBookId = `-- name: GetBookDetailsByBookId :one
-SELECT id, isbn, title, description, price, genre, publisher_id, year_published
+SELECT id, isbn, title, description, price, genre, publisher_id, year_published, copies_sold
 FROM books
 WHERE id = $1
 `
@@ -137,6 +141,7 @@ func (q *Queries) GetBookDetailsByBookId(ctx context.Context, id uuid.UUID) (Boo
 		&i.Genre,
 		&i.PublisherID,
 		&i.YearPublished,
+		&i.CopiesSold,
 	)
 	return i, err
 }

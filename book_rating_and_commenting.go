@@ -11,7 +11,7 @@ import (
 	"github.com/google/uuid"
 )
 
-//Post rating function
+// Post rating function
 func (apiCfg *apiConfig) handlerPostRating(w http.ResponseWriter, r *http.Request) {
 	type parameters struct {
 		BookID uuid.UUID `json:"book_id"`
@@ -26,25 +26,26 @@ func (apiCfg *apiConfig) handlerPostRating(w http.ResponseWriter, r *http.Reques
 		return
 	}
 	rating, err := apiCfg.DB.CreateRating(r.Context(), database.CreateRatingParams{
-		ID: 	uuid.New(),
+		ID:     uuid.New(),
 		BookID: params.BookID,
 		Rating: params.Rating,
 		UserID: params.UserID,
 	})
 
-	if (err != nil) {
+	if err != nil {
 		respondWithError(w, 400, fmt.Sprintf("Failed to create new rating: %v", err))
 		return
 	}
 	responseWithJSON(w, 201, rating)
-} 
+}
 
-//Post comment function
-func (apiCfg *apiConfig) handlerPostComment(w http.ResponseWriter, r *http.Request) {	decoder := json.NewDecoder(r.Body)
+// Post comment function
+func (apiCfg *apiConfig) handlerPostComment(w http.ResponseWriter, r *http.Request) {
+	decoder := json.NewDecoder(r.Body)
 	type parameters struct {
-		BookID uuid.UUID `json:"book_id"`
-		Comment string   `json:"comment"`
-		UserID uuid.UUID `json:"user_id"`
+		BookID  uuid.UUID `json:"book_id"`
+		Comment string    `json:"comment"`
+		UserID  uuid.UUID `json:"user_id"`
 	}
 	decoder = json.NewDecoder(r.Body)
 	params := parameters{}
@@ -54,7 +55,7 @@ func (apiCfg *apiConfig) handlerPostComment(w http.ResponseWriter, r *http.Reque
 		return
 	}
 	comment, err := apiCfg.DB.CreateComment(r.Context(), database.CreateCommentParams{
-		ID: 	 uuid.New(),
+		ID:      uuid.New(),
 		BookID:  params.BookID,
 		Comment: params.Comment,
 		UserID:  params.UserID,
@@ -66,7 +67,7 @@ func (apiCfg *apiConfig) handlerPostComment(w http.ResponseWriter, r *http.Reque
 	responseWithJSON(w, 201, comment)
 }
 
-//Gets average rating for each book
+// Gets average rating for each book
 func (apiCfg *apiConfig) handlerAvgRating(w http.ResponseWriter, r *http.Request) {
 	bookIDStr := chi.URLParam(r, "bookID")
 	bookID, err := uuid.Parse(bookIDStr)
@@ -85,32 +86,32 @@ func (apiCfg *apiConfig) handlerAvgRating(w http.ResponseWriter, r *http.Request
 	}
 	var avgRating float64
 	switch v := avgRatingInterface.(type) {
-		case float64:
-			avgRating = v
-		case int64:
-			avgRating = float64(v)
-		case string:
-			parsed, err := strconv.ParseFloat(v, 64)
-			if err != nil {
-				respondWithError(w, 500, fmt.Sprintf("Unexpected string type for average rating: %v", err))
-				return 
-			}
-			avgRating = parsed
-		case []uint8:
-			parsed, err := strconv.ParseFloat(string(v), 64)
-			if err != nil {
-				respondWithError(w, 500, fmt.Sprintf("Unexpected []uint8 type for average rating: %v", err))
-				return
-			}
-			avgRating = parsed
-		default:
-			respondWithError(w, 500, fmt.Sprintf("Unexpected type for average rating: %T", avgRatingInterface))
+	case float64:
+		avgRating = v
+	case int64:
+		avgRating = float64(v)
+	case string:
+		parsed, err := strconv.ParseFloat(v, 64)
+		if err != nil {
+			respondWithError(w, 500, fmt.Sprintf("Unexpected string type for average rating: %v", err))
 			return
+		}
+		avgRating = parsed
+	case []uint8:
+		parsed, err := strconv.ParseFloat(string(v), 64)
+		if err != nil {
+			respondWithError(w, 500, fmt.Sprintf("Unexpected []uint8 type for average rating: %v", err))
+			return
+		}
+		avgRating = parsed
+	default:
+		respondWithError(w, 500, fmt.Sprintf("Unexpected type for average rating: %T", avgRatingInterface))
+		return
 	}
 	responseWithJSON(w, 200, map[string]float64{"average_rating": avgRating})
 }
 
-//Gets all comments for a book
+// Gets all comments for a book
 func (apiCfg *apiConfig) handlerGetComments(w http.ResponseWriter, r *http.Request) {
 	bookIDStr := chi.URLParam(r, "bookID")
 	bookID, err := uuid.Parse(bookIDStr)
