@@ -3,6 +3,7 @@ package main
 import (
 	"database/sql"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 
@@ -21,6 +22,7 @@ func (apiCfg *apiConfig) handlerCreateBook(w http.ResponseWriter, r *http.Reques
 		PublisherName string  `json:"publisher_name"`
 		YearPublished int     `json:"year_published"`
 		CopiesSold    int     `json:"copies_sold"`
+		AuthorName    string  `json:"author"`
 	}
 
 	decoder := json.NewDecoder(r.Body)
@@ -52,6 +54,19 @@ func (apiCfg *apiConfig) handlerCreateBook(w http.ResponseWriter, r *http.Reques
 		}
 	}
 
+	// Check if author is already in the database
+	_, err = apiCfg.DB.GetAuthorByName(r.Context(), params.AuthorName)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			// Author was not found
+			respondWithError(w, 404, fmt.Sprintf("Author was not found: %v", err))
+			return
+		} else {
+			respondWithError(w, 500, fmt.Sprintf("Database error: %v", err))
+			return
+		}
+	}
+
 	// Add new Book to the Database
 	book, err := apiCfg.DB.CreateBook(r.Context(), database.CreateBookParams{
 		ID:            uuid.New(),
@@ -63,6 +78,7 @@ func (apiCfg *apiConfig) handlerCreateBook(w http.ResponseWriter, r *http.Reques
 		PublisherID:   uuid.NullUUID{UUID: publisherID, Valid: true},
 		YearPublished: int32(params.YearPublished),
 		CopiesSold:    int32(params.CopiesSold),
+		Author:        params.AuthorName,
 	})
 
 	// Check if there is an error while adding the book to the DB
@@ -146,8 +162,8 @@ func (apiCfg *apiConfig) handlerCreateAuthor(w http.ResponseWriter, r *http.Requ
 	// Respond with the ID of the created author (or you can fetch and return more details if needed)
 	// Here, just returning the ID as a simple response
 	responseWithJSON(w, 200, map[string]interface{}{
-		"message" : "Author successfully created.",
-		"id": authorID,
+		"message": "Author successfully created.",
+		"id":      authorID,
 	})
 }
 
