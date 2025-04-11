@@ -12,7 +12,7 @@ RETURNING *;
 SELECT id FROM publishers WHERE name = $1;
 
 -- name: GetAuthorByName :one
-SELECT id FROM authors WHERE first_name = $1;
+SELECT id FROM authors WHERE first_name = $1 AND last_name =$2;
 
 -- name: GetBookByISBN :one
 SELECT id, isbn, title, description, price, genre, publisher_id, year_published, copies_sold, author

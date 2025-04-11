@@ -111,3 +111,8 @@ func databaseBooksToBooks(dbBooks []database.Book) []Book {
 	}
 	return books
 }
+
+type GetAuthorByNameParams struct {
+    FirstName string `json:"first_name"`
+    LastName  string `json:"last_name"`
+}

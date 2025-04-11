@@ -104,11 +104,16 @@ func (q *Queries) CreatePublisher(ctx context.Context, arg CreatePublisherParams
 }
 
 const getAuthorByName = `-- name: GetAuthorByName :one
-SELECT id FROM authors WHERE first_name = $1
+SELECT id FROM authors WHERE first_name = $1 AND last_name =$2
 `
 
-func (q *Queries) GetAuthorByName(ctx context.Context, firstName string) (uuid.UUID, error) {
-	row := q.db.QueryRowContext(ctx, getAuthorByName, firstName)
+type GetAuthorByNameParams struct {
+	FirstName string
+	LastName  string
+}
+
+func (q *Queries) GetAuthorByName(ctx context.Context, arg GetAuthorByNameParams) (uuid.UUID, error) {
+	row := q.db.QueryRowContext(ctx, getAuthorByName, arg.FirstName, arg.LastName)
 	var id uuid.UUID
 	err := row.Scan(&id)
 	return id, err
