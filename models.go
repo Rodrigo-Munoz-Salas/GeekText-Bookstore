@@ -86,6 +86,7 @@ type Book struct {
 	PublisherID   uuid.NullUUID  `json:"publisher_id"`
 	YearPublished int32          `json:"year_published"`
 	CopiesSold    int32          `json:"copies_sold"`
+	Author        string         `json:"author"`
 }
 
 func databaseBookToBook(dbBook database.Book) Book {
@@ -99,6 +100,7 @@ func databaseBookToBook(dbBook database.Book) Book {
 		PublisherID:   dbBook.PublisherID,
 		YearPublished: dbBook.YearPublished,
 		CopiesSold:    dbBook.CopiesSold,
+		Author:        dbBook.Author,
 	}
 }
 
@@ -108,4 +110,9 @@ func databaseBooksToBooks(dbBooks []database.Book) []Book {
 		books = append(books, databaseBookToBook(dbBook))
 	}
 	return books
+}
+
+type GetAuthorByNameParams struct {
+    FirstName string `json:"first_name"`
+    LastName  string `json:"last_name"`
 }
