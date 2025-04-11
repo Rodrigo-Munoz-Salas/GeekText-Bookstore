@@ -38,9 +38,9 @@ func (q *Queries) CreateAuthor(ctx context.Context, arg CreateAuthorParams) (uui
 }
 
 const createBook = `-- name: CreateBook :one
-INSERT INTO books (id, isbn, title, description, price, genre, publisher_id, year_published, copies_sold)
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
-RETURNING id, isbn, title, description, price, genre, publisher_id, year_published, copies_sold
+INSERT INTO books (id, isbn, title, description, price, genre, publisher_id, year_published, copies_sold, author)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+RETURNING id, isbn, title, description, price, genre, publisher_id, year_published, copies_sold, author
 `
 
 type CreateBookParams struct {
@@ -53,6 +53,7 @@ type CreateBookParams struct {
 	PublisherID   uuid.NullUUID
 	YearPublished int32
 	CopiesSold    int32
+	Author        string
 }
 
 func (q *Queries) CreateBook(ctx context.Context, arg CreateBookParams) (Book, error) {
@@ -66,6 +67,7 @@ func (q *Queries) CreateBook(ctx context.Context, arg CreateBookParams) (Book, e
 		arg.PublisherID,
 		arg.YearPublished,
 		arg.CopiesSold,
+		arg.Author,
 	)
 	var i Book
 	err := row.Scan(
@@ -78,6 +80,7 @@ func (q *Queries) CreateBook(ctx context.Context, arg CreateBookParams) (Book, e
 		&i.PublisherID,
 		&i.YearPublished,
 		&i.CopiesSold,
+		&i.Author,
 	)
 	return i, err
 }
@@ -100,8 +103,19 @@ func (q *Queries) CreatePublisher(ctx context.Context, arg CreatePublisherParams
 	return i, err
 }
 
+const getAuthorByName = `-- name: GetAuthorByName :one
+SELECT id FROM authors WHERE first_name = $1
+`
+
+func (q *Queries) GetAuthorByName(ctx context.Context, firstName string) (uuid.UUID, error) {
+	row := q.db.QueryRowContext(ctx, getAuthorByName, firstName)
+	var id uuid.UUID
+	err := row.Scan(&id)
+	return id, err
+}
+
 const getBookByISBN = `-- name: GetBookByISBN :one
-SELECT id, isbn, title, description, price, genre, publisher_id, year_published, copies_sold
+SELECT id, isbn, title, description, price, genre, publisher_id, year_published, copies_sold, author
 FROM books 
 WHERE isbn = $1
 `
@@ -119,12 +133,13 @@ func (q *Queries) GetBookByISBN(ctx context.Context, isbn string) (Book, error) 
 		&i.PublisherID,
 		&i.YearPublished,
 		&i.CopiesSold,
+		&i.Author,
 	)
 	return i, err
 }
 
 const getBookDetailsByBookId = `-- name: GetBookDetailsByBookId :one
-SELECT id, isbn, title, description, price, genre, publisher_id, year_published, copies_sold
+SELECT id, isbn, title, description, price, genre, publisher_id, year_published, copies_sold, author
 FROM books
 WHERE id = $1
 `
@@ -142,6 +157,7 @@ func (q *Queries) GetBookDetailsByBookId(ctx context.Context, id uuid.UUID) (Boo
 		&i.PublisherID,
 		&i.YearPublished,
 		&i.CopiesSold,
+		&i.Author,
 	)
 	return i, err
 }

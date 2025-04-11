@@ -62,7 +62,7 @@ func (q *Queries) GetBookToDelete(ctx context.Context, arg GetBookToDeleteParams
 }
 
 const getWishlistBooksByWishlistID = `-- name: GetWishlistBooksByWishlistID :many
-SELECT b.id, b.isbn, b.title, b.description, b.price, b.genre, b.publisher_id, b.year_published, b.copies_sold
+SELECT b.id, b.isbn, b.title, b.description, b.price, b.genre, b.publisher_id, b.year_published, b.copies_sold, b.author
 FROM books b
 JOIN wishlist_books wb ON b.id = wb.book_id
 WHERE wb.wishlist_id = $1
@@ -87,6 +87,7 @@ func (q *Queries) GetWishlistBooksByWishlistID(ctx context.Context, wishlistID u
 			&i.PublisherID,
 			&i.YearPublished,
 			&i.CopiesSold,
+			&i.Author,
 		); err != nil {
 			return nil, err
 		}
